@@ -26,7 +26,7 @@ async function main() {
 function moveArtifacts(nft){
     let parent = path.resolve(__dirname, '..')
     const frontEndPath = path.resolve(parent, "../drinking_trees_frontend")
-    fse.copySync(process.cwd() + "/artifacts", frontEndPath + "/artifacts");
+    fse.copySync(process.cwd() + "/artifacts/contracts", frontEndPath + "/artifacts");
 }
 
 main()
