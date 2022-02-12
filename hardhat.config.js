@@ -1,8 +1,10 @@
 require("@nomiclabs/hardhat-waffle");
 const fs = require("fs")
+require("dotenv").config()
 
-const privateKey = fs.readFileSync(".secret").toString()
+const privateKey = process.env.ACCOUNT1_PRIVATEKEY
 projectId = "50c33544dad04cfe9bdda7f3caa2142a"
+
 
 
 module.exports = {
