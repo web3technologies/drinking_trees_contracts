@@ -13,14 +13,14 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
     uint256 public maxSupply = 1000;
     uint256 public maxMintAmount = 20;
     bool public paused = false;
+    address marketAddress;
+
+
     mapping(address => bool) public whitelisted;
 
-    constructor (
-      string memory _name,
-      string memory _symbol,
-      string memory _initBaseURI
-      ) ERC721(_name, _symbol) {
+    constructor (string memory _name, string memory _symbol, string memory _initBaseURI, address _marketAddress) ERC721(_name, _symbol) {
         setBaseURI(_initBaseURI);
+        marketAddress = _marketAddress;
     }
 
     // internal
@@ -30,7 +30,7 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
 
     // public
     function mint(uint256 _mintAmount) public payable {
-      uint256 supply = totalSupply();
+        uint256 supply = totalSupply();
         require(!paused);
         require(_mintAmount > 0);
         require(_mintAmount <= maxMintAmount);
@@ -44,6 +44,7 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
 
       for (uint256 i = 1; i <= _mintAmount; i++) {
         _safeMint(msg.sender, supply + i);
+        setApprovalForAll(marketAddress, true);
       }
     }
 

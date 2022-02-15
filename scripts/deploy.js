@@ -5,17 +5,20 @@ const path = require('path');
 const fse = require('fs-extra');
 
 async function main() {
-  // const NFTMarket = await hre.ethers.getContractFactory("NFTMarket");
-  // const nftMarket = await NFTMarket.deploy();
-  // await nftMarket.deployed()
-  // console.log("nftMarket deployed to: ", nftMarket.address)
+
+    const NFTMarket = await hre.ethers.getContractFactory("NFTMarket");
+    const nftMarket = await NFTMarket.deploy();
+    await nftMarket.deployed()
+    console.log("nftMarket deployed to: ", nftMarket.address)
 
     const NFT = await hre.ethers.getContractFactory("DrinkingTrees")
-    const nft = await NFT.deploy("DrinkingTrees", "DRT", "https://gateway.pinata.cloud/ipfs/");
+    const nft = await NFT.deploy("DrinkingTrees", "DRT", "https://gateway.pinata.cloud/ipfs/", nftMarket.address);
     await nft.deployed();
 
+    console.log()
+    console.log('Deployed from')
     console.log(nft.deployTransaction.from)
-    console.log(nft.address)
+    console.log("nft deployed to: ", nft.address)
     // console.log(JSON.stringify(nft, null, 4));
 
     const contractName = "DrinkingTrees"
@@ -24,8 +27,6 @@ async function main() {
         contractName: contractName,
         address: nft.address
     }
-    
-    const jsonContent = await JSON.stringify(addressData)
     // fs.writeFileSync(process.cwd() + `/artifacts/contracts/address/${contractName}.json`, jsonContent, "utf8", err => console.log(err))
 
     moveArtifacts()

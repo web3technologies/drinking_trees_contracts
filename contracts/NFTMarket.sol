@@ -11,10 +11,10 @@ contract NFTMarket is ReentrancyGuard {
     using Counters for Counters.Counter;
     Counters.Counter private _itemIds;
     Counters.Counter private _itemsSold;
-
     address payable owner;
-    uint256 listingPrice = 0.025 ether;
+    address nftAddress;
 
+    uint256 listingPrice = 0.025 ether;
 
     constructor() {
         owner = payable(msg.sender);
@@ -42,10 +42,19 @@ contract NFTMarket is ReentrancyGuard {
         bool sold
     );
 
+    function setNftAddress(address _nftAddress) public {
+        require(msg.sender == owner);
+        nftAddress = _nftAddress;
+    }
+
     // gets price of listing
     function getListingPrice() public view returns (uint256){
         return listingPrice;
     }
+
+    function setListingPrice(uint256 _listingPrice) public{
+        listingPrice = _listingPrice;
+    } 
 
     function createMarketItem(      // this method basically creates a listing ie someones wants to sell their nft
         address nftContract,
@@ -123,59 +132,6 @@ contract NFTMarket is ReentrancyGuard {
 
         return items;
 
-    }
-
-
-    function fetchMyNFTs() public view returns (MarketItem[] memory){ // fetches nfts you have purchased
-        uint totalItemCount = _itemIds.current();
-        uint itemCount = 0;
-        uint currentIndex = 0;
-
-        for ( uint i = 0; i < totalItemCount; i++){ // this for loop will define the itemCount owned by the user. It is used to define the length of the array to be returned
-            if (idToMarketItem[i + 1].owner == msg.sender){
-                itemCount += 1;
-            }
-        }
-        
-        MarketItem[] memory items = new MarketItem[](itemCount); // item array to be returned
-
-
-        for (uint i = 0; i < totalItemCount; i++){
-            if (idToMarketItem[i + 1].owner == msg.sender){
-                uint currentId = idToMarketItem[i + 1].itemId;
-                MarketItem storage currentItem = idToMarketItem[currentId];
-                items[currentIndex] = currentItem;
-                currentIndex += 1;
-            }
-        }
-
-        return items;
-    }
-
-
-    function fetchItemsCreated() public view returns (MarketItem[] memory){ // fetches nfts you have purchased
-        uint totalItemCount = _itemIds.current();
-        uint itemCount = 0;
-        uint currentIndex = 0;
-
-        for ( uint i = 0; i < totalItemCount; i++){ // this for loop will define the itemCount owned by the user. It is used to define the length of the array to be returned
-            if (idToMarketItem[i + 1].seller == msg.sender){
-                itemCount += 1;
-            }
-        }
-        
-        MarketItem[] memory items = new MarketItem[](itemCount); // item array to be returned
-
-        for (uint i = 0; i < totalItemCount; i++){
-            if (idToMarketItem[i + 1].seller == msg.sender){
-                uint currentId = idToMarketItem[i + 1].itemId;
-                MarketItem storage currentItem = idToMarketItem[currentId];
-                items[currentIndex] = currentItem;
-                currentIndex += 1;
-            }
-        }
-
-        return items;
     }
 
 
