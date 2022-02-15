@@ -10,23 +10,33 @@ async function main() {
   // await nftMarket.deployed()
   // console.log("nftMarket deployed to: ", nftMarket.address)
 
-  // const NFT = await hre.ethers.getContractFactory("NFT")
-  // const nft = await NFT.deploy(nftMarket.address);
-  // await nft.deployed();
-  // console.log("nft deployed to: ", nft.address);
-
-
     const NFT = await hre.ethers.getContractFactory("DrinkingTrees")
-    const nft = await NFT.deploy("DrinkinTrees", "DRT", "https://gateway.pinata.cloud/ipfs/");
+    const nft = await NFT.deploy("DrinkingTrees", "DRT", "https://gateway.pinata.cloud/ipfs/");
     await nft.deployed();
-    moveArtifacts(nft)
+
+    console.log(nft.deployTransaction.from)
+    console.log(nft.address)
+    // console.log(JSON.stringify(nft, null, 4));
+
+    const contractName = "DrinkingTrees"
+
+    const addressData = {
+        contractName: contractName,
+        address: nft.address
+    }
+    
+    const jsonContent = await JSON.stringify(addressData)
+    // fs.writeFileSync(process.cwd() + `/artifacts/contracts/address/${contractName}.json`, jsonContent, "utf8", err => console.log(err))
+
+    moveArtifacts()
 
 }
 
-function moveArtifacts(nft){
+function moveArtifacts(){
+
     let parent = path.resolve(__dirname, '..')
     const frontEndPath = path.resolve(parent, "../drinking_trees_frontend")
-    fse.copySync(process.cwd() + "/artifacts/contracts", frontEndPath + "/artifacts");
+    fse.copySync(process.cwd() + "/artifacts", frontEndPath + "/artifacts");
 }
 
 main()
