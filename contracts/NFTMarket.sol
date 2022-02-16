@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "hardhat/console.sol";
 
 contract NFTMarket is ReentrancyGuard {
     
@@ -99,7 +100,10 @@ contract NFTMarket is ReentrancyGuard {
         
         uint price = idToMarketItem[itemId].price;
         uint tokenId = idToMarketItem[itemId].tokenId;
-        
+        console.log("Price");
+        console.log(price);
+        console.log("msg.value");
+        console.log(msg.value);
         require(msg.value == price, "Please submit the asking price in order to complete the purchase");
 
         idToMarketItem[itemId].seller.transfer(msg.value); // transfer money from buyer to seller

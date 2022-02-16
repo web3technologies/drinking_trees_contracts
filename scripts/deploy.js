@@ -34,7 +34,10 @@ async function main() {
     const jsonContentNFT = JSON.stringify(addressDataNFT)
     
     const baseDirPath = "/artifacts/contracts/address/"
-    fs.mkdirSync(process.cwd() + baseDirPath)
+
+    if (!fs.existsSync(process.cwd() + baseDirPath)){
+      fs.mkdirSync(process.cwd() + baseDirPath);
+    }
     fs.writeFileSync(process.cwd() + `/artifacts/contracts/address/DrinkingTrees.json`, jsonContentNFT, "utf8", err => console.log(err))
     fs.writeFileSync(process.cwd() + `/artifacts/contracts/address/NFTMarket.json`, jsonContentMarket, "utf8", err => console.log(err))
     moveArtifacts()
