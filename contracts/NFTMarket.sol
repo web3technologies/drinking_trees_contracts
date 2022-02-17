@@ -69,6 +69,8 @@ contract NFTMarket is ReentrancyGuard {
         _itemIds.increment();
         uint256 itemId = _itemIds.current();
 
+        console.log("Listing Price: ", price);
+
         idToMarketItem[itemId] = MarketItem(
             itemId,
             nftContract,
@@ -100,12 +102,12 @@ contract NFTMarket is ReentrancyGuard {
         
         uint price = idToMarketItem[itemId].price;
         uint tokenId = idToMarketItem[itemId].tokenId;
-        console.log("Price");
-        console.log(price);
-        console.log("msg.value");
-        console.log(msg.value);
-        require(msg.value == price, "Please submit the asking price in order to complete the purchase");
+        console.log("nftId: ", itemId);
+        console.log("tokenID: ", tokenId);
+        console.log("Price: ", price);
+        console.log("msg.value: ", msg.value);
 
+        require(msg.value == price, "Please submit the asking price in order to complete the purchase");
         idToMarketItem[itemId].seller.transfer(msg.value); // transfer money from buyer to seller
         IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId); // transfer the nft to the buyer
         idToMarketItem[itemId].owner = payable(msg.sender);
