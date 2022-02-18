@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "hardhat/console.sol";
 
+
 contract NFTMarket is ReentrancyGuard {
     
     
@@ -13,12 +14,14 @@ contract NFTMarket is ReentrancyGuard {
     Counters.Counter private _itemIds;
     Counters.Counter private _itemsSold;
     address payable owner;
-    address nftAddress;
+    address nftAddress;     // will be used to store the address of the nft to be used in sales and market creation
+    address payable bankAddress;
 
     uint256 listingPrice = 0.025 ether;
 
-    constructor() {
+    constructor(address _bankAddress) {
         owner = payable(msg.sender);
+        bankAddress = payable(_bankAddress);
     }
 
     struct MarketItem {
@@ -114,8 +117,12 @@ contract NFTMarket is ReentrancyGuard {
         idToMarketItem[itemId].sold = true;
         _itemsSold.increment();
 
-        payable(owner).transfer(listingPrice); // commission price... Here it is the listing price... however this could be a percentage of the actual sale price...
-
+        console.log("tranfering");
+        console.log(bankAddress);
+        console.log(listingPrice);
+        payable(bankAddress).transfer(listingPrice); // commission price... Here it is the listing price... however this could be a percentage of the actual sale price...
+        // address(this).call{value: listingPrice}
+        console.log("transfered");
     }
 
 

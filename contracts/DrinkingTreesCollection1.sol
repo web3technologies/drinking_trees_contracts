@@ -2,6 +2,7 @@
 pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "hardhat/console.sol";
 
 
 contract DrinkingTrees is ERC721Enumerable, Ownable {
@@ -14,13 +15,14 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
     uint256 public maxMintAmount = 20;
     bool public paused = false;
     address marketAddress;
-
+    address payable bankAddress;
 
     mapping(address => bool) public whitelisted;
 
-    constructor (string memory _name, string memory _symbol, string memory _initBaseURI, address _marketAddress) ERC721(_name, _symbol) {
+    constructor (string memory _name, string memory _symbol, string memory _initBaseURI, address _marketAddress, address _bankAddress) ERC721(_name, _symbol) {
         setBaseURI(_initBaseURI);
         marketAddress = _marketAddress;
+        bankAddress = payable(_bankAddress);
     }
 
     // internal
@@ -46,6 +48,8 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
         _safeMint(msg.sender, supply + i);
         setApprovalForAll(marketAddress, true);
       }
+
+      console.log("This is current balance: ", address(this).balance);
     }
 
     function walletOfOwner(address _owner)
@@ -109,6 +113,9 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
     }
 
     function withdraw() public payable onlyOwner {
-      require(payable(msg.sender).send(address(this).balance));
+      console.log("This is current balance: ", address(this).balance);
+      // require(payable(msg.sender).send(address(this).balance));
+      address payable receiver = bankAddress;
+      require(receiver.send(address(this).balance));
     }
   }
