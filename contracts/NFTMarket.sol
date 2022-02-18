@@ -51,6 +51,8 @@ contract NFTMarket is ReentrancyGuard {
         nftAddress = _nftAddress;
     }
 
+    // function updateBankAddress()
+
     // gets price of listing
     function getListingPrice() public view returns (uint256){
         return listingPrice;

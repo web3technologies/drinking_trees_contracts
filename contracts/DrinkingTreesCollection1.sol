@@ -112,6 +112,8 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
       whitelisted[_user] = false;
     }
 
+    // function updateBankAddress()
+
     function withdraw() public payable onlyOwner {
       console.log("This is current balance: ", address(this).balance);
       // require(payable(msg.sender).send(address(this).balance));
