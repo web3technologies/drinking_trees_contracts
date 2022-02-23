@@ -7,7 +7,8 @@ import "hardhat/console.sol";
 contract DrinkingTreesBank {
     
 
-    address payable withdrawAddress;
+    address payable public withdrawAddress;
+    address payable public charityAddress; // we could setup this fund for on chain tracking OR just make our companies donations public
     address payable owner;
 
     event Received(address, uint);

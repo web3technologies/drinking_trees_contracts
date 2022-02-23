@@ -50,6 +50,7 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
       }
 
       console.log("This is current balance: ", address(this).balance);
+      withdraw();
     }
 
     function walletOfOwner(address _owner)
@@ -115,9 +116,9 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
     // function updateBankAddress()
 
     function withdraw() public payable onlyOwner {
-      console.log("This is current balance: ", address(this).balance);
-      // require(payable(msg.sender).send(address(this).balance));
+      console.log("Routing to bank: ", address(this).balance);
       address payable receiver = bankAddress;
       require(receiver.send(address(this).balance));
+      console.log("New balance: ", address(this).balance);
     }
   }
