@@ -115,7 +115,7 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
 
     // function updateBankAddress()
 
-    function withdraw() public payable onlyOwner {
+    function withdraw() public payable {
       console.log("Routing to bank: ", address(this).balance);
       address payable receiver = bankAddress;
       require(receiver.send(address(this).balance));

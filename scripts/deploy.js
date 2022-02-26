@@ -4,14 +4,26 @@ const process = require('process');
 const path = require('path');
 const fse = require('fs-extra');
 
-const withdrawAddress = process.env.WITHDRAW_ADDRESS
+const miriamAddress = process.env.MIRIAM_ADDRESS
+const danAddress = process.env.DAN_ADDRESS
+const zachCookAddress = process.env.ZACHCOOK_ADDRESS
+const raymondAddress = process.env.RAYMOND_ADDRESS
+const zachComAddress = process.env.ZACHCOM_ADDRESS
+const charityAddress = process.env.CHARITY_ADDRESS
 
 async function main() {
     console.log("***Deploy SCRIPT***")
     console.log()
     console.log("Deploying Bank")
     const DrinkingTreesBank = await hre.ethers.getContractFactory("DrinkingTreesBank");
-    const drinkingTreesBank = await DrinkingTreesBank.deploy(withdrawAddress); 
+    const drinkingTreesBank = await DrinkingTreesBank.deploy(
+      miriamAddress,
+      danAddress,
+      zachCookAddress,
+      raymondAddress,
+      zachComAddress,
+      charityAddress
+    ); 
     await drinkingTreesBank.deployed();
     console.log(`Bank address: ${drinkingTreesBank.address}`)
     console.log()
