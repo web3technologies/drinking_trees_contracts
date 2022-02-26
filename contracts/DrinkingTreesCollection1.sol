@@ -10,7 +10,7 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
 
     string public baseURI;
     string public baseExtension = ".json";
-    uint256 public cost = 20000000000000000 wei; //represents .002 eth
+    uint256 public cost = 0.02 ether; //represents .002 eth
     uint256 public maxSupply = 1000;
     uint256 public maxMintAmount = 20;
     bool public paused = false;

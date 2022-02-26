@@ -17,7 +17,8 @@ contract NFTMarket is ReentrancyGuard {
     address nftAddress;     // will be used to store the address of the nft to be used in sales and market creation
     address payable bankAddress;
 
-    uint256 listingPrice = 0.025 ether;
+    uint buyerPremium = 250;
+    uint sellerPremium = 500;
 
     constructor(address _bankAddress) {
         owner = payable(msg.sender);
@@ -53,13 +54,9 @@ contract NFTMarket is ReentrancyGuard {
 
     // function updateBankAddress()
 
-    // gets price of listing
-    function getListingPrice() public view returns (uint256){
-        return listingPrice;
-    }
 
-    function setListingPrice(uint256 _listingPrice) public{
-        listingPrice = _listingPrice;
+    function setSellerPremium(uint256 _sellerPremium) public{
+        sellerPremium = _sellerPremium;
     } 
 
     function createMarketItem(      // this method basically creates a listing ie someones wants to sell their nft
@@ -69,7 +66,6 @@ contract NFTMarket is ReentrancyGuard {
     ) public payable nonReentrant {
         
         require(price > 0, "Price must be at least 1 wei");
-        require(msg.value == listingPrice, "Price must be equal to listing price");
 
         _itemIds.increment();
         uint256 itemId = _itemIds.current();
@@ -112,20 +108,26 @@ contract NFTMarket is ReentrancyGuard {
         console.log("Price: ", price);
         console.log("msg.value: ", msg.value);
 
+        uint fee = price * sellerPremium / 10000;
+        console.log("Fee is: ", fee);
+        uint sellerValue = msg.value - fee;
+        console.log("Seller value: ", sellerValue);
+
         require(msg.value == price, "Please submit the asking price in order to complete the purchase");
-        idToMarketItem[itemId].seller.transfer(msg.value); // transfer money from buyer to seller
+        idToMarketItem[itemId].seller.transfer(sellerValue); // transfer money from buyer to seller
         IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId); // transfer the nft to the buyer
         idToMarketItem[itemId].owner = payable(msg.sender);
         idToMarketItem[itemId].sold = true;
         _itemsSold.increment();
 
-        console.log("tranfering");
-        console.log(bankAddress);
-        console.log(listingPrice);
-        payable(bankAddress).transfer(listingPrice); // commission price... Here it is the listing price... however this could be a percentage of the actual sale price...
+        payable(bankAddress).transfer(fee); // commission price... Here it is the listing price... however this could be a percentage of the actual sale price...
         // address(this).call{value: listingPrice}
         console.log("transfered");
     }
+
+    // function cancelMarketItem(){}
+
+    
 
 
     function fetchMarketItems() public view returns (MarketItem[] memory) {     // gets all the items that are available for sale
