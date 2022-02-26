@@ -10,7 +10,7 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
 
     string public baseURI;
     string public baseExtension = ".json";
-    uint256 public cost = 100 ether;
+    uint256 public cost = 20000000000000000 wei; //represents .002 eth
     uint256 public maxSupply = 1000;
     uint256 public maxMintAmount = 20;
     bool public paused = false;
@@ -38,6 +38,7 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
         require(_mintAmount <= maxMintAmount);
         require(supply + _mintAmount <= maxSupply);
 
+        console.log("Cost is: ", cost);
       if (msg.sender != owner()) {
           if(whitelisted[msg.sender] != true) {
             require(msg.value >= cost * _mintAmount);
