@@ -65,6 +65,20 @@ contract DrinkingTreesBank {
         return allShareHolders;
     }
 
+    function getAdminUser() public view returns (bool){
+
+        if (msg.sender == owner){return true;}
+        for (uint8 i=0; i<usernames.length; i++){
+            string memory username = usernames[i];
+            ShareHolder storage shareHolder = shareHolders[username];
+            if(msg.sender == shareHolder.wallet){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     function withdraw() public payable {
 
         uint256 currentBalance = address(this).balance;
@@ -75,10 +89,7 @@ contract DrinkingTreesBank {
             require(shareHolderWallet.send(currentBalance * shareholderEquity / 10000));
         }
         
-
-
     }
-
 
     function changeUserAddress(string memory _username, address _newAddress) public {
         
