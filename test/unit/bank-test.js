@@ -4,7 +4,7 @@ const { ethers, waffle } = require("hardhat");
 const { BigNumber } = require('ethers');
 
 
-describe("Testing NFT, Market, Bank", ()=>{
+describe("Bank Test", ()=>{
 
   before(async ()=> {
 
@@ -42,6 +42,18 @@ describe("Testing NFT, Market, Bank", ()=>{
   // beforeEach(async () =>{
   //   // await nft.mint() // mint from owner which requires no value
   //   await nft.connect(testAccount).mint({value: ethers.utils.parseEther(".02")}) // mint from non owner which requires value
+  // })
+
+  // it("Bank owner should be owner", async ()=> {
+  //   expect((await drinkingTreesBank.owner())).to.equal(owner.address)
+  // })
+
+  // it("Market owner should be owner", async ()=> {
+  //   expect((await drinkingTreesBank.owner())).to.equal(owner.address)
+  // })
+
+  // it("NFT owner should be owner", async ()=> {
+  //   expect((await drinkingTreesBank.owner())).to.equal(owner.address)
   // })
 
   it("The Shareholder Count should be 6", async ()=>{
@@ -82,18 +94,49 @@ describe("Testing NFT, Market, Bank", ()=>{
 
   })
 
-  it("NFT supply should increase after mint", async ()=> {
-    await nft.mint()
-    await nft.connect(testAccount).mint({value: ethers.utils.parseEther(".02")})
-    await nft.connect(testAccount).mint({value: ethers.utils.parseEther(".02")})
-    expect((await nft.totalSupply()).toString()).to.equal("3")
+  it("Get all Shareholders", async()=>{
+    const shareHolders = await drinkingTreesBank.getAllShareHolders()
+    expect(shareHolders.length).to.equal(6)
+    const firstShareHolder = shareHolders[0]
+    expect(firstShareHolder.username).to.equal("miriam")
+    expect(firstShareHolder.wallet).to.equal(miriamAccount.address)
+    expect(BigNumber.from(firstShareHolder.equityPercent).toString()).to.equal("2100")
+
   })
 
-  it(`Bank Balance after 2 total mints should be .02`, async ()=>{
+
+  it(`Bank Balance after 2 total mints should be .04`, async ()=>{
+    await nft.connect(testAccount).mint({value: ethers.utils.parseEther(".02")})
+    await nft.connect(testAccount).mint({value: ethers.utils.parseEther(".02")})
     const provider = waffle.provider;
     let bankBalance = await provider.getBalance(drinkingTreesBank.address)
     bankBalance = BigNumber.from(bankBalance).toString()
     expect(bankBalance).to.equal(ethers.utils.parseEther(".04"))
+  })
+
+  it("Withdraw should transfer the correct ammounts and bank should be 0.0", async()=>{
+    
+    const provider = waffle.provider;
+    const miriamShareHolder = await drinkingTreesBank.shareHolders("miriam")
+
+    let miriamBalanceBefore = await provider.getBalance(miriamShareHolder.wallet)
+    miriamBalanceBefore = BigNumber.from(miriamBalanceBefore)
+    
+    let bankBalanceBefore = await provider.getBalance(drinkingTreesBank.address)
+    bankBalanceBefore = BigNumber.from(bankBalanceBefore)
+
+    await drinkingTreesBank.withdraw()
+    
+    const payout = bankBalanceBefore * .21
+    let miriamBalanceAfter = await provider.getBalance(miriamShareHolder.wallet)
+    miriamBalanceAfter = BigNumber.from(miriamBalanceAfter)
+    expect(miriamBalanceAfter).to.equal(miriamBalanceBefore.add(payout))
+
+
+    let bankBalanceafter = await provider.getBalance(drinkingTreesBank.address)
+    bankBalanceafter = BigNumber.from(bankBalanceafter)
+    bankBalanceafter = ethers.utils.formatEther(bankBalanceafter)
+    expect(bankBalanceafter).to.equal("0.0")
   })
 
 
