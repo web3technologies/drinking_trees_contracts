@@ -12,7 +12,6 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
     string public baseExtension = ".json";
     uint256 public cost = 0.02 ether; //represents .002 eth
     uint256 public maxSupply = 1000;
-    uint256 public maxMintAmount = 20;
     bool public paused = false;
     address marketAddress;
     address payable bankAddress;
@@ -31,27 +30,19 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
       }
 
     // public
-    function mint(uint256 _mintAmount) public payable {
+    function mint() public payable {
         uint256 supply = totalSupply();
         require(!paused);
-        require(_mintAmount > 0);
-        require(_mintAmount <= maxMintAmount);
-        require(supply + _mintAmount <= maxSupply);
+        require(supply + 1 <= maxSupply);
+        if (msg.sender != owner()) {
+            if(whitelisted[msg.sender] != true) {
+              require(msg.value >= cost);
+            }
+        }
 
-        console.log("Cost is: ", cost);
-      if (msg.sender != owner()) {
-          if(whitelisted[msg.sender] != true) {
-            require(msg.value >= cost * _mintAmount);
-          }
-      }
-
-      for (uint256 i = 1; i <= _mintAmount; i++) {
-        _safeMint(msg.sender, supply + i);
+        _safeMint(msg.sender, supply + 1);
         setApprovalForAll(marketAddress, true);
-      }
-
-      console.log("This is current balance: ", address(this).balance);
-      withdraw();
+        withdraw();
     }
 
     function walletOfOwner(address _owner)
@@ -90,10 +81,6 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
       cost = _newCost;
     }
 
-    function setmaxMintAmount(uint256 _newmaxMintAmount) public onlyOwner {
-      maxMintAmount = _newmaxMintAmount;
-    }
-
     function setBaseURI(string memory _newBaseURI) public onlyOwner {
       baseURI = _newBaseURI;
     }
@@ -117,9 +104,7 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
     // function updateBankAddress()
 
     function withdraw() public payable {
-      console.log("Routing to bank: ", address(this).balance);
       address payable receiver = bankAddress;
       require(receiver.send(address(this).balance));
-      console.log("New balance: ", address(this).balance);
     }
   }

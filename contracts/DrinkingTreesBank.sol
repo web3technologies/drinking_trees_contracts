@@ -7,7 +7,7 @@ import "hardhat/console.sol";
 contract DrinkingTreesBank {
     
     address payable owner;
-    uint shareHolderCount = 0;
+    uint public shareHolderCount = 0;
     string[] private usernames;
 
     struct ShareHolder {
@@ -17,7 +17,7 @@ contract DrinkingTreesBank {
         uint128 equityPercent;  // technically equity doesnt exist because this number is actually the revenue percent
     }
 
-    mapping(string => ShareHolder) private shareHolders; 
+    mapping(string => ShareHolder) public shareHolders; 
 
     event Received(address, uint);
 
@@ -32,25 +32,13 @@ contract DrinkingTreesBank {
         ) {
 
         owner = payable(msg.sender);
-        shareHolderCount ++;
-        shareHolders["miriam"] = ShareHolder(shareHolderCount, "miriam", _miriamAddress, 2100);
-        usernames.push("miriam");
-        shareHolderCount ++;
-        shareHolders["dan"] = ShareHolder(shareHolderCount, "dan", _danAddress, 2100);
-        usernames.push("dan");
-        shareHolderCount ++;
-        shareHolders["zachcook"] = ShareHolder(shareHolderCount, "zachcook", _zachCookAddress, 2100);
-        usernames.push("zachcook");
-        shareHolderCount ++;
-        shareHolders["raymond"] = ShareHolder(shareHolderCount, "raymond", _raymondAddress, 2100);
-        usernames.push("raymond");
-        shareHolderCount ++;
-        shareHolders["zachcom"] = ShareHolder(shareHolderCount, "zachcom", _zachComAddress, 600);
-        usernames.push("zachcom");
-        shareHolderCount ++;
-        shareHolders["charity"] = ShareHolder(shareHolderCount, "charity", _charityAddress, 1000);
-        usernames.push("charity");
-        shareHolderCount ++;
+
+        _createShareHolder("miriam", _miriamAddress, 2100);
+        _createShareHolder("dan", _danAddress, 2100);
+        _createShareHolder("zachcook", _zachCookAddress, 2100);
+        _createShareHolder("raymond", _raymondAddress, 2100);
+        _createShareHolder("zachcom", _zachComAddress, 600);
+        _createShareHolder("charity", _charityAddress, 1000);
 
     }
 
@@ -59,17 +47,32 @@ contract DrinkingTreesBank {
         emit Received(msg.sender, msg.value);
     }
 
+    function _createShareHolder(string memory _username, address _walletAddress, uint128 _equityPercentage) private {
+        shareHolders[_username] = ShareHolder(shareHolderCount, _username, _walletAddress, _equityPercentage);
+        usernames.push(_username);
+        shareHolderCount ++;
+    }
+
+    function getAllShareHolders() public view returns (ShareHolder[] memory) {
+
+      ShareHolder[] memory allShareHolders = new ShareHolder[](usernames.length);
+        for (uint8 i=0; i<usernames.length; i++){
+            string memory username = usernames[i];
+            ShareHolder storage shareHolder = shareHolders[username];
+            allShareHolders[i] = shareHolder;
+        }
+      return allShareHolders;
+    }
+
     function withdraw() public payable {
 
         uint256 currentBalance = address(this).balance;
-        console.log("current balance of bank: ", address(this).balance);
         for (uint8 i=0; i<usernames.length; i++){
             string memory username = usernames[i];
             address payable shareHolderWallet = payable(shareHolders[username].wallet);
             uint128 shareholderEquity = shareHolders[username].equityPercent;
             require(shareHolderWallet.send(currentBalance * shareholderEquity / 10000));
         }
-        console.log("new balance of bank: ", address(this).balance);
         
 
 
@@ -94,15 +97,6 @@ contract DrinkingTreesBank {
     
 
 
-    function getAllShareHolders() public view returns (ShareHolder[] memory) {
-
-      ShareHolder[] memory allShareHolders = new ShareHolder[](usernames.length);
-        for (uint8 i=0; i<usernames.length; i++){
-            string memory username = usernames[i];
-            ShareHolder storage shareHolder = shareHolders[username];
-            allShareHolders[i] = shareHolder;
-        }
-      return allShareHolders;
-    }
+    
 
 }
