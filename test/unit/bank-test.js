@@ -117,20 +117,33 @@ describe("Bank Test", ()=>{
   it("Withdraw should transfer the correct ammounts and bank should be 0.0", async()=>{
     
     const provider = waffle.provider;
-    const miriamShareHolder = await drinkingTreesBank.shareHolders("miriam")
 
-    let miriamBalanceBefore = await provider.getBalance(miriamShareHolder.wallet)
-    miriamBalanceBefore = BigNumber.from(miriamBalanceBefore)
+    let shareHolders = await drinkingTreesBank.getAllShareHolders()
+    shareHolders = shareHolders.map((shareholder)=> shareholder.username)
     
-    let bankBalanceBefore = await provider.getBalance(drinkingTreesBank.address)
-    bankBalanceBefore = BigNumber.from(bankBalanceBefore)
+    for (let i = 0; i<shareHolders.length; i++){
+      const shareholderUsername = shareHolders[i]
+      const shareHolder = await drinkingTreesBank.shareHolders(shareholderUsername)
+      const shareHolderPercent = shareHolder.equityPercent;
 
-    await drinkingTreesBank.withdraw()
+      let convertedPercent = BigNumber.from(shareHolderPercent).toNumber()
+      convertedPercent = ethers.utils.formatUnits(convertedPercent, 4)
+      
+      let shareHolderBalanceBefore = await provider.getBalance(shareHolder.wallet)
+      shareHolderBalanceBefore = BigNumber.from(shareHolderBalanceBefore)
+      
+      let bankBalanceBefore = await provider.getBalance(drinkingTreesBank.address)
+      bankBalanceBefore = BigNumber.from(bankBalanceBefore)
+      const payout = bankBalanceBefore * convertedPercent
+
+      await drinkingTreesBank.withdraw()
+      
+      let shareHolderBalanceAfter = await provider.getBalance(shareHolder.wallet)
+      shareHolderBalanceAfter = BigNumber.from(shareHolderBalanceAfter)
+      expect(shareHolderBalanceAfter).to.equal(shareHolderBalanceBefore.add(payout))
+    }
+
     
-    const payout = bankBalanceBefore * .21
-    let miriamBalanceAfter = await provider.getBalance(miriamShareHolder.wallet)
-    miriamBalanceAfter = BigNumber.from(miriamBalanceAfter)
-    expect(miriamBalanceAfter).to.equal(miriamBalanceBefore.add(payout))
 
 
     let bankBalanceafter = await provider.getBalance(drinkingTreesBank.address)
