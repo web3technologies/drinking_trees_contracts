@@ -10,6 +10,8 @@ contract DrinkingTreesBank {
     uint public shareHolderCount = 0;
     string[] private usernames;
 
+    uint equityPercentAllowed = 10000; // represents 100%
+    uint public equityPercentAllocated = 0;
     uint private withdrawAddressSignatures; 
 
     struct ShareHolder {
@@ -50,9 +52,12 @@ contract DrinkingTreesBank {
     }
 
     function _createShareHolder(string memory _username, address _walletAddress, uint128 _equityPercentage) private {
+        
+        require(equityPercentAllocated + _equityPercentage <= equityPercentAllowed, "Given equity percentage must not be larger than 10000");
         shareHolders[_username] = ShareHolder(shareHolderCount, _username, _walletAddress, _equityPercentage);
         usernames.push(_username);
         shareHolderCount ++;
+        equityPercentAllocated += _equityPercentage;
     }
 
     function getAllShareHolders() public view returns (ShareHolder[] memory) {
