@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
-
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
+
 
 contract DrinkingTreesBank {
     
     address payable owner;
     uint public shareHolderCount = 0;
     string[] private usernames;
+
+    uint private withdrawAddressSignatures; 
 
     struct ShareHolder {
         uint id;
@@ -54,14 +56,13 @@ contract DrinkingTreesBank {
     }
 
     function getAllShareHolders() public view returns (ShareHolder[] memory) {
-
-      ShareHolder[] memory allShareHolders = new ShareHolder[](usernames.length);
-        for (uint8 i=0; i<usernames.length; i++){
-            string memory username = usernames[i];
-            ShareHolder storage shareHolder = shareHolders[username];
-            allShareHolders[i] = shareHolder;
-        }
-      return allShareHolders;
+        ShareHolder[] memory allShareHolders = new ShareHolder[](usernames.length);
+            for (uint8 i=0; i<usernames.length; i++){
+                string memory username = usernames[i];
+                ShareHolder storage shareHolder = shareHolders[username];
+                allShareHolders[i] = shareHolder;
+            }
+        return allShareHolders;
     }
 
     function withdraw() public payable {
@@ -78,22 +79,18 @@ contract DrinkingTreesBank {
 
     }
 
-    // function setWithdrawAddress(address _withdrawAddress) public  {
-    //     require(msg.sender == owner);
-    //     withdrawAddress = payable(_withdrawAddress);
-    // }
 
-    // function changeUserAddress(string _username, address _newAddress) public {
+    function changeUserAddress(string memory _username, address _newAddress) public {
         
-    //     bool memory isUserOwner = shareHolders[_username].wallet == msg.sender;  
-
-    //     require(isUserOwner || signerCount === 3);
-
-    //     signerCount == 0;
-    // }
+        ShareHolder storage shareHolder = shareHolders[_username];
+        require(shareHolder.wallet == msg.sender, "You be user of this account to update address");
+        shareHolder.wallet = _newAddress;
+        // signerCount == 0;
+    }
 
     // function sign(){}        function to allow person to sign
     // function unSign(){}      functoin to allow person to unsign
+    // function getsignatures public view(){}
     
 
 

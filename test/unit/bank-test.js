@@ -44,17 +44,6 @@ describe("Bank Test", ()=>{
   //   await nft.connect(testAccount).mint({value: ethers.utils.parseEther(".02")}) // mint from non owner which requires value
   // })
 
-  // it("Bank owner should be owner", async ()=> {
-  //   expect((await drinkingTreesBank.owner())).to.equal(owner.address)
-  // })
-
-  // it("Market owner should be owner", async ()=> {
-  //   expect((await drinkingTreesBank.owner())).to.equal(owner.address)
-  // })
-
-  // it("NFT owner should be owner", async ()=> {
-  //   expect((await drinkingTreesBank.owner())).to.equal(owner.address)
-  // })
 
   it("The Shareholder Count should be 6", async ()=>{
     expect((await drinkingTreesBank.shareHolderCount()).toString()).to.equal("6")
@@ -143,14 +132,22 @@ describe("Bank Test", ()=>{
       expect(shareHolderBalanceAfter).to.equal(shareHolderBalanceBefore.add(payout))
     }
 
-    
-
-
     let bankBalanceafter = await provider.getBalance(drinkingTreesBank.address)
     bankBalanceafter = BigNumber.from(bankBalanceafter)
     bankBalanceafter = ethers.utils.formatEther(bankBalanceafter)
     expect(bankBalanceafter).to.equal("0.0")
   })
 
+  it("Change shareholder address", async()=>{
+    
+    let shareHolders = await drinkingTreesBank.getAllShareHolders()
+    shareHolders = shareHolders.map((shareholder)=> shareholder.username)
+    const shareHolderUsername = shareHolders[0]
+
+    await drinkingTreesBank.connect(miriamAccount).changeUserAddress(shareHolderUsername, testAccount.address)
+    const updatedShareHolder = await drinkingTreesBank.shareHolders(shareHolderUsername)
+    expect(updatedShareHolder.wallet).to.equal(testAccount.address)
+
+  })
 
 })
