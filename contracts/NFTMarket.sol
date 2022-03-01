@@ -96,6 +96,8 @@ contract NFTMarket is ReentrancyGuard {
 
     }
 
+    // function unListItem(){}
+
     function createMarketSale(     // a user will call this function when buying the nft from the secondary market
         address nftContract,
         uint256 itemId

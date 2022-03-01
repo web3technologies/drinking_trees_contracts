@@ -10,7 +10,7 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
 
     string public baseURI;
     string public baseExtension = ".json";
-    uint256 public cost = 0.02 ether; //represents .002 eth
+    uint256 public cost = 0.02 ether; //represents .002 eth WILL NEED TO BE DYNAMIC IF ON MULTI CHAIN
     uint256 public maxSupply = 1000;
     bool public paused = false;
     address marketAddress;
@@ -36,7 +36,7 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
         require(supply + 1 <= maxSupply);
         if (msg.sender != owner()) {
             if(whitelisted[msg.sender] != true) {
-              require(msg.value >= cost);
+              require(msg.value >= cost, "You must provide the correct price");
             }
         }
 
