@@ -12,16 +12,27 @@ module.exports = {
     hardhat: {
       chainId: 1337
     },
-    rinkeby: {
-      url: `https://rinkeby.infura.io/v3/${projectId}`,
-      chainId: 4,
+    ropsten: {
+      url: `https://ropsten.infura.io/v3/${projectId}`,
+      chainId: 3,
       accounts: [privateKey]
     },
-    mainnet: {
-      url: `https://mainnet.infura.io/v3/${projectId}`,
-      chainId: 1,
+    multivac: {
+      url: `https://rpc.mtv.ac`,
+      chainId: 62621,
       accounts: [privateKey]
     }
+    // ,
+    // rinkeby: {
+    //   url: `https://rinkeby.infura.io/v3/${projectId}`,
+    //   chainId: 4,
+    //   accounts: [privateKey]
+    // },
+    // mainnet: {
+    //   url: `https://mainnet.infura.io/v3/${projectId}`,
+    //   chainId: 1,
+    //   accounts: [privateKey]
+    // }
   },
   solidity: "0.8.4",
 };
