@@ -75,6 +75,9 @@ function moveArtifacts(){
     let parent = path.resolve(__dirname, '..')
     const frontEndPath = path.resolve(parent, "../drinking_trees_frontend")
     fse.copySync(process.cwd() + "/artifacts", frontEndPath + "/artifacts");
+
+    const adminPath = path.resolve(parent, "../drinking_trees_admin")
+    fse.copySync(process.cwd() + "/artifacts", adminPath + "/artifacts");
 }
 
 main()
