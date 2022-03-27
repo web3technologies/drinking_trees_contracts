@@ -6,6 +6,10 @@ import "hardhat/console.sol";
 
 contract DrinkingTreesBank {
     
+    event Received(address indexed sender, uint amount);
+
+
+
     address payable owner;
     uint public shareHolderCount = 0;
     string[] private usernames;
@@ -19,30 +23,37 @@ contract DrinkingTreesBank {
         string username;
         address wallet;
         uint128 equityPercent;  // technically equity doesnt exist because this number is actually the revenue percent
+        uint changeCount;
     }
 
     mapping(string => ShareHolder) public shareHolders; 
 
-    event Received(address, uint);
+    modifier RequireShareHolder(string _username){
+        ShareHolder memory shareHolder = shareHolders[_username];
+        require(msg.sender == shareHolder.wallet, "not an authorized shareholder");
+        _;
+    }
 
 
     constructor(
-        address _miriamAddress,
-        address _danAddress,
-        address _zachCookAddress,
-        address _raymondAddress,
-        address _zachComAddress,
-        address _charityAddress
+        address calldata _miriamAddress,
+        address calldata _danAddress,
+        address calldata _zachCookAddress,
+        address calldata _raymondAddress,
+        address calldata _zachComAddress,
+        address calldata _charityAddress,
+        address calldata _vaultAddress
         ) {
 
         owner = payable(msg.sender);
 
-        _createShareHolder("miriam", _miriamAddress, 2100);
-        _createShareHolder("dan", _danAddress, 2100);
-        _createShareHolder("zachcook", _zachCookAddress, 2100);
-        _createShareHolder("raymond", _raymondAddress, 2100);
-        _createShareHolder("zachcom", _zachComAddress, 600);
+        _createShareHolder("VelveteenCryptoGirl", _miriamAddress, 1860);
+        _createShareHolder("dannyboy", _danAddress, 1860);
+        _createShareHolder("buy_it_all", _zachCookAddress, 1860);
+        _createShareHolder("doctorculture", _raymondAddress, 1860);
+        _createShareHolder("ZAch", _zachComAddress, 560);
         _createShareHolder("charity", _charityAddress, 1000);
+        _createShareHolder("vault", _vaultAddress, 1000);
 
     }
 
@@ -54,7 +65,7 @@ contract DrinkingTreesBank {
     function _createShareHolder(string memory _username, address _walletAddress, uint128 _equityPercentage) private {
         
         require(equityPercentAllocated + _equityPercentage <= equityPercentAllowed, "Given equity percentage must not be larger than 10000");
-        shareHolders[_username] = ShareHolder(shareHolderCount, _username, _walletAddress, _equityPercentage);
+        shareHolders[_username] = ShareHolder(shareHolderCount, _username, _walletAddress, _equityPercentage, 0);
         usernames.push(_username);
         shareHolderCount ++;
         equityPercentAllocated += _equityPercentage;
@@ -84,7 +95,9 @@ contract DrinkingTreesBank {
         return false;
     }
 
-    function withdraw() public payable {
+    function withdraw() public payable { // IMPORTANT NEED TO PREVENT REENTRANCY
+
+        // need to require shareholder only call this
 
         uint256 currentBalance = address(this).balance;
         for (uint8 i=0; i<usernames.length; i++){
@@ -96,20 +109,18 @@ contract DrinkingTreesBank {
         
     }
 
+    // function approveUserChange(){}
+    // function revokeUserChange(){}
+
     function changeUserAddress(string memory _username, address _newAddress) public {
         
         ShareHolder storage shareHolder = shareHolders[_username];
-        require(shareHolder.wallet == msg.sender, "You be user of this account to update address");
+        require(shareHolder.wallet == msg.sender || shareHolder.changeCount >= 4, "You must be user of this account or 4 user change votes must be signed");
         shareHolder.wallet = _newAddress;
-        // signerCount == 0;
+        shareHolder.changeCount = 0;
     }
 
-    // function sign(){}        function to allow person to sign
-    // function unSign(){}      functoin to allow person to unsign
-    // function getsignatures public view(){}
-    
-
-
+    // function pauseWithdraw(){}
     
 
 }

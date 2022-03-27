@@ -10,11 +10,29 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
 
     string public baseURI;
     string public baseExtension = ".json";
-    uint256 public cost = 0.02 ether; //represents .002 eth WILL NEED TO BE DYNAMIC IF ON MULTI CHAIN
+    uint256 public cost = 0.02 ether;
     uint256 public maxSupply = 1000;
     bool public paused = false;
     address marketAddress;
     address payable bankAddress;
+
+    struct Generation{
+        uint genertationId;
+        uint maxSupply;
+        string baseURI;
+        string baseExtension;
+        uint mintPrice;
+        uint payoutAddress;
+        uint marketAddress;
+        bool paused;
+        mapping(address => bool) whitelisted;
+        uint modifySigCount; // multi sig to update value
+    }
+
+    mapping(uint => Generation) public generations;
+
+
+    mapping(address => bool) public owners; // create setter
 
     mapping(address => bool) public whitelisted;
 
@@ -23,6 +41,29 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
         marketAddress = _marketAddress;
         bankAddress = payable(_bankAddress);
     }
+
+
+    // function createGeneration(
+    //   uint _generationId,
+    //   uint _maxSupply,
+    //   string _baseURI,
+    //   string _baseExtension,
+    //   uint _mintPrice,
+    //   uint payoutAddress,
+    //   uint marketAddress,
+    //   bool paused
+    //   ) public onlyOwner{
+
+
+    // }
+
+
+    function signModifySig(){
+
+      storage Generation 
+
+    }
+
 
     // internal
       function _baseURI() internal view virtual override returns (string memory) {
