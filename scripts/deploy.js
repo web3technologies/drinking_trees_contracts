@@ -105,19 +105,22 @@ const uploadToS3Bucket = (image, filePath) => {
 
 
 async function fullSend(){
+    
+    const contractEnv = process.env.CONTRACT_ENV
+
     console.log("uploading addresses")
     const drinkingTreesJson = process.cwd() + "/artifacts/contracts/address/DrinkingTrees.json"
     const drinkingTreesBankJson = process.cwd() + "/artifacts/contracts/address/DrinkingTreesBank.json"
     const nftMarketJson = process.cwd() + "/artifacts/contracts/address/NFTMarket.json"
+    await uploadToS3Bucket(fs.readFileSync(drinkingTreesJson), `${contractEnv}/contracts/address/DrinkingTrees.json`)
+    await uploadToS3Bucket(fs.readFileSync(drinkingTreesBankJson), `${contractEnv}/contracts/address/DrinkingTreesBank.json`)
+    await uploadToS3Bucket(fs.readFileSync(nftMarketJson), `${contractEnv}/contracts/address/NFTMarket.json`)
     
-    await uploadToS3Bucket(fs.readFileSync(drinkingTreesJson), "devcontracts/contracts/address/DrinkingTrees.json")
-    await uploadToS3Bucket(fs.readFileSync(drinkingTreesBankJson), "devcontracts/contracts/address/DrinkingTreesBank.json")
-    await uploadToS3Bucket(fs.readFileSync(nftMarketJson), "devcontracts/contracts/address/NFTMarket.json")
     console.log("uploading contract data")
     const drinkingTreesSol = process.cwd() + "/artifacts/contracts/DrinkingTrees.sol/DrinkingTrees.dbg.json"
-    await uploadToS3Bucket(fs.readFileSync(drinkingTreesSol), "devcontracts/contracts/DrinkingTrees.sol/DrinkingTrees.dbg.json")
     const drinkingTreesSolJson = process.cwd() + "/artifacts/contracts/DrinkingTrees.sol/DrinkingTrees.json"
-    await uploadToS3Bucket(fs.readFileSync(drinkingTreesSolJson), "devcontracts/contracts/DrinkingTrees.sol/DrinkingTrees.json")
+    await uploadToS3Bucket(fs.readFileSync(drinkingTreesSol), `${contractEnv}/contracts/DrinkingTrees.sol/DrinkingTrees.dbg.json`)
+    await uploadToS3Bucket(fs.readFileSync(drinkingTreesSolJson), `${contractEnv}/contracts/DrinkingTrees.sol/DrinkingTrees.json`)
 
 
 
