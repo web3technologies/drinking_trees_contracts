@@ -6,7 +6,6 @@ const privateKey = process.env.ACCOUNT1_PRIVATEKEY
 projectId = "50c33544dad04cfe9bdda7f3caa2142a"
 
 
-
 module.exports = {
   networks: {
     hardhat: {

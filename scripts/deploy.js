@@ -3,13 +3,16 @@ const fs = require('fs');
 const process = require('process');
 const path = require('path');
 const fse = require('fs-extra');
+const AWS = require("aws-sdk")
 
-const miriamAddress = process.env.MIRIAM_ADDRESS
-const danAddress = process.env.DAN_ADDRESS
-const zachCookAddress = process.env.ZACHCOOK_ADDRESS
-const raymondAddress = process.env.RAYMOND_ADDRESS
-const zachComAddress = process.env.ZACHCOM_ADDRESS
-const charityAddress = process.env.CHARITY_ADDRESS
+const miriamAddress = "0x47C1d00FF2f675232CdC3CC39EBBabFF37c04375"
+const danAddress = "0x47C1d00FF2f675232CdC3CC39EBBabFF37c04375"
+const zachCookAddress = "0x47C1d00FF2f675232CdC3CC39EBBabFF37c04375"
+const raymondAddress = "0x47C1d00FF2f675232CdC3CC39EBBabFF37c04375"
+const zachComAddress = "0x47C1d00FF2f675232CdC3CC39EBBabFF37c04375"
+const charityAddress = "0x47C1d00FF2f675232CdC3CC39EBBabFF37c04375"
+
+
 
 async function main() {
     console.log("***Deploy SCRIPT***")
@@ -22,6 +25,7 @@ async function main() {
       zachCookAddress,
       raymondAddress,
       zachComAddress,
+      charityAddress,
       charityAddress
     ); 
     await drinkingTreesBank.deployed();
@@ -65,12 +69,65 @@ async function main() {
     fs.writeFileSync(process.cwd() + `/artifacts/contracts/address/DrinkingTreesBank.json`, jsonContentBank, "utf8", err => console.log(err))
     fs.writeFileSync(process.cwd() + `/artifacts/contracts/address/DrinkingTrees.json`, jsonContentNFT, "utf8", err => console.log(err))
     fs.writeFileSync(process.cwd() + `/artifacts/contracts/address/NFTMarket.json`, jsonContentMarket, "utf8", err => console.log(err))
-    moveArtifacts()
+
+    await fullSend()
+}
+
+
+const uploadToS3Bucket = (image, filePath) => {
+  return new Promise((resolve, reject) => {
+    let s3 = new AWS.S3({
+      accessKeyId: process.env.S3_ACCESS_KEY_ID,
+      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+      // region: process.env.S3_REGION,
+    });
+
+    const bucketName = process.env.S3_BUCKET_NAME;
+
+    let bucketPath = filePath;
+
+    let params = {
+      Bucket: bucketName,
+      Key: bucketPath,
+      Body: image,
+    };
+
+    s3.putObject(params, function (err, data) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log('success')
+        resolve();
+      }
+    });
+  });
+};
+
+
+async function fullSend(){
+    console.log("uploading addresses")
+    const drinkingTreesJson = process.cwd() + "/artifacts/contracts/address/DrinkingTrees.json"
+    const drinkingTreesBankJson = process.cwd() + "/artifacts/contracts/address/DrinkingTreesBank.json"
+    const nftMarketJson = process.cwd() + "/artifacts/contracts/address/NFTMarket.json"
     
+    await uploadToS3Bucket(fs.readFileSync(drinkingTreesJson), "devcontracts/contracts/address/DrinkingTrees.json")
+    await uploadToS3Bucket(fs.readFileSync(drinkingTreesBankJson), "devcontracts/contracts/address/DrinkingTreesBank.json")
+    await uploadToS3Bucket(fs.readFileSync(nftMarketJson), "devcontracts/contracts/address/NFTMarket.json")
+    console.log("uploading contract data")
+    const drinkingTreesSol = process.cwd() + "/artifacts/contracts/DrinkingTrees.sol/DrinkingTrees.dbg.json"
+    await uploadToS3Bucket(fs.readFileSync(drinkingTreesSol), "devcontracts/contracts/DrinkingTrees.sol/DrinkingTrees.dbg.json")
+    const drinkingTreesSolJson = process.cwd() + "/artifacts/contracts/DrinkingTrees.sol/DrinkingTrees.json"
+    await uploadToS3Bucket(fs.readFileSync(drinkingTreesSolJson), "devcontracts/contracts/DrinkingTrees.sol/DrinkingTrees.json")
+
+
 
 }
 
+
+
+
 function moveArtifacts(){
+
 
     let parent = path.resolve(__dirname, '..')
     const frontEndPath = path.resolve(parent, "../drinking_trees_frontend")

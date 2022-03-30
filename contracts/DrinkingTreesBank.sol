@@ -28,7 +28,7 @@ contract DrinkingTreesBank {
 
     mapping(string => ShareHolder) public shareHolders; 
 
-    modifier RequireShareHolder(string _username){
+    modifier RequireShareHolder(string memory _username){
         ShareHolder memory shareHolder = shareHolders[_username];
         require(msg.sender == shareHolder.wallet, "not an authorized shareholder");
         _;
@@ -36,13 +36,13 @@ contract DrinkingTreesBank {
 
 
     constructor(
-        address calldata _miriamAddress,
-        address calldata _danAddress,
-        address calldata _zachCookAddress,
-        address calldata _raymondAddress,
-        address calldata _zachComAddress,
-        address calldata _charityAddress,
-        address calldata _vaultAddress
+        address  _miriamAddress,
+        address  _danAddress,
+        address  _zachCookAddress,
+        address  _raymondAddress,
+        address  _zachComAddress,
+        address  _charityAddress,
+        address  _vaultAddress
         ) {
 
         owner = payable(msg.sender);
