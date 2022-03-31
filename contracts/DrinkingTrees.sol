@@ -5,16 +5,19 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 
 
+
 contract DrinkingTrees is ERC721Enumerable, Ownable {
     using Strings for uint256;
 
-    string public baseURI;
-    string public baseExtension = ".json";
-    uint256 public cost = 0.02 ether;
-    uint256 public maxSupply = 1000;
-    bool public paused = false;
-    address marketAddress;
-    address payable bankAddress;
+    // string public baseURI;
+    // string public baseExtension = ".json";
+    // uint256 public cost = 0.02 ether;
+    // uint256 public maxSupply = 1000;
+    // bool public paused = false;
+    // address marketAddress;
+    // address payable bankAddress;
+
+    uint generationId;
 
     struct Generation{
         uint genertationId;
@@ -32,7 +35,7 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
     mapping(uint => Generation) public generations;
 
 
-    mapping(address => bool) public owners; // create setter
+    mapping(address => bool) public admins; // create setter
 
     mapping(address => bool) public whitelisted;
 
@@ -43,26 +46,24 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
     }
 
 
-    // function createGeneration(
-    //   uint _generationId,
-    //   uint _maxSupply,
-    //   string _baseURI,
-    //   string _baseExtension,
-    //   uint _mintPrice,
-    //   uint payoutAddress,
-    //   uint marketAddress,
-    //   bool paused
-    //   ) public onlyOwner{
+    function createGeneration(
+      uint memory _generationId,
+      uint memory _maxSupply,
+      string memory _baseURI,
+      string memory _baseExtension,
+      uint memory _mintPrice,
+      uint memory payoutAddress,
+      uint memory marketAddress,
+      bool memory paused
+      ) public onlyOwner{
+
+      generationId ++;
+
+      Generation storage generation = Generation(generationId, _maxSupply, _baseURI, _baseExtension, payoutAddress, marketAddress, true);
 
 
-    // }
+    }
 
-
-    // function signModifySig(){
-
-    //   storage Generation 
-
-    // }
 
 
     // internal
@@ -71,10 +72,15 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
       }
 
     // public
-    function mint() public payable {
+    function mint(uint memory _generationId) public payable {
+        
+        Generation memory generation = generations[_generationId];
+
+
         uint256 supply = totalSupply();
         require(!paused);
         require(supply + 1 <= maxSupply);
+
         if (msg.sender != owner()) {
             if(whitelisted[msg.sender] != true) {
               require(msg.value >= cost, "You must provide the correct price");
@@ -142,10 +148,8 @@ contract DrinkingTrees is ERC721Enumerable, Ownable {
       whitelisted[_user] = false;
     }
 
-    // function updateBankAddress()
-
-    function withdraw() public payable {
-      address payable receiver = bankAddress;
-      require(receiver.send(address(this).balance));
-    }
+    // function withdraw() public payable {
+    //   address payable receiver = bankAddress;
+    //   require(receiver.send(address(this).balance));
+    // }
   }
