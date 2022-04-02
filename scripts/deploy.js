@@ -5,54 +5,31 @@ const path = require('path');
 const fse = require('fs-extra');
 const AWS = require("aws-sdk")
 
-const miriamAddress = "0x47C1d00FF2f675232CdC3CC39EBBabFF37c04375"
-const danAddress = "0x47C1d00FF2f675232CdC3CC39EBBabFF37c04375"
-const zachCookAddress = "0x47C1d00FF2f675232CdC3CC39EBBabFF37c04375"
-const raymondAddress = "0x47C1d00FF2f675232CdC3CC39EBBabFF37c04375"
-const zachComAddress = "0x47C1d00FF2f675232CdC3CC39EBBabFF37c04375"
-const charityAddress = "0x47C1d00FF2f675232CdC3CC39EBBabFF37c04375"
 
+const deployConfig = {
+  tokenName: "Drinking Trees",
+  tokenSymbol: "DRT",
+  maxAmountPerTransaction: 1,
+  hiddenMetaDataURI: "ipfs://QmPvgdkcXHVEqgL9427bEKef18GW92XR8zpvPW1NKmnefu/hidden.json",
+  uriPrefix: "ipfs://Qmbk6yP3XSUwaXNTYkghsg53MBEy4yUxTCPiDdFaUo3jki/"
+}
 
+const deployArgs = [
+  deployConfig.tokenName,
+  deployConfig.tokenSymbol,
+  deployConfig.maxAmountPerTransaction,
+  deployConfig.hiddenMetaDataURI,
+  deployConfig.uriPrefix
+]
 
 async function main() {
     console.log("***Deploy SCRIPT***")
-    console.log()
-    console.log("Deploying Bank")
-    const DrinkingTreesBank = await hre.ethers.getContractFactory("DrinkingTreesBank");
-    const drinkingTreesBank = await DrinkingTreesBank.deploy(
-      miriamAddress,
-      danAddress,
-      zachCookAddress,
-      raymondAddress,
-      zachComAddress,
-      charityAddress,
-      charityAddress
-    ); 
-    await drinkingTreesBank.deployed();
-    console.log(`Bank address: ${drinkingTreesBank.address}`)
-    console.log()
-    const addressDataBank = {
-      contractName: "DrinkingTreesBank",
-      address: drinkingTreesBank.address
-    }
-    const jsonContentBank = JSON.stringify(addressDataBank)
-
-
-    console.log("Deploying Market")
-    const NFTMarket = await hre.ethers.getContractFactory("NFTMarket");
-    const nftMarket = await NFTMarket.deploy(drinkingTreesBank.address);
-    await nftMarket.deployed()
-    console.log("NFTMarket deployed to: ", nftMarket.address)
-    console.log()
-    const addressDataMarket = {
-      contractName: "NFtMarket",
-      address: nftMarket.address
-    }
-    const jsonContentMarket = JSON.stringify(addressDataMarket)
 
     console.log("Deploying NFT")
     const NFT = await hre.ethers.getContractFactory("DrinkingTrees")
-    const nft = await NFT.deploy("DrinkingTrees", "DRT", "https://gateway.pinata.cloud/ipfs/", nftMarket.address, drinkingTreesBank.address);
+
+
+    const nft = await NFT.deploy(...deployArgs);
     await nft.deployed();
     console.log("NFT deployed to: ", nft.address)
     const addressDataNFT = {
@@ -66,9 +43,7 @@ async function main() {
     if (!fs.existsSync(process.cwd() + baseDirPath)){
       fs.mkdirSync(process.cwd() + baseDirPath);
     }
-    fs.writeFileSync(process.cwd() + `/artifacts/contracts/address/DrinkingTreesBank.json`, jsonContentBank, "utf8", err => console.log(err))
     fs.writeFileSync(process.cwd() + `/artifacts/contracts/address/DrinkingTrees.json`, jsonContentNFT, "utf8", err => console.log(err))
-    fs.writeFileSync(process.cwd() + `/artifacts/contracts/address/NFTMarket.json`, jsonContentMarket, "utf8", err => console.log(err))
 
     await fullSend()
 }
@@ -92,11 +67,11 @@ const uploadToS3Bucket = (image, filePath) => {
       Body: image,
     };
 
-    s3.putObject(params, function (err, data) {
+    s3.putObject(params, (err, data) => {
       if (err) {
         console.log(err);
       } else {
-        console.log('success')
+        console.log('success: ', filePath)
         resolve();
       }
     });
@@ -110,11 +85,7 @@ async function fullSend(){
 
     console.log("uploading addresses")
     const drinkingTreesJson = process.cwd() + "/artifacts/contracts/address/DrinkingTrees.json"
-    const drinkingTreesBankJson = process.cwd() + "/artifacts/contracts/address/DrinkingTreesBank.json"
-    const nftMarketJson = process.cwd() + "/artifacts/contracts/address/NFTMarket.json"
     await uploadToS3Bucket(fs.readFileSync(drinkingTreesJson), `${contractEnv}/contracts/address/DrinkingTrees.json`)
-    await uploadToS3Bucket(fs.readFileSync(drinkingTreesBankJson), `${contractEnv}/contracts/address/DrinkingTreesBank.json`)
-    await uploadToS3Bucket(fs.readFileSync(nftMarketJson), `${contractEnv}/contracts/address/NFTMarket.json`)
     
     console.log("uploading contract data")
     const drinkingTreesSol = process.cwd() + "/artifacts/contracts/DrinkingTrees.sol/DrinkingTrees.dbg.json"
