@@ -71,6 +71,8 @@ contract DrinkingTrees is ERC721A, Ownable, ReentrancyGuard {
     function mint(uint256 _mintAmount) public payable mintCompliance(_mintAmount) mintPriceCompliance(_mintAmount) {
         require(!paused, 'The contract is paused!');
 
+        console.log("MINTING!");
+
         _safeMint(_msgSender(), _mintAmount);
     }
     
