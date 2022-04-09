@@ -1,5 +1,6 @@
 const axios = require('axios');
-// require("hardhat")
+const CsvReader = require('promised-csv');
+
 
 const PRIVATEKEY = process.env.ACCOUNT1_PRIVATEKEY
 
@@ -27,6 +28,31 @@ async function fetchContractData() {
 
 }
 
+
+function readCSV(inputFile) {
+    return new Promise((resolve, reject) => {
+
+        var reader = new CsvReader();
+        var output = [];
+
+        reader.on('row', data => {
+            // data is an array of data. You should
+            // concatenate it to the data set to compile it.
+            output = output.concat(data);
+        });
+
+        reader.on('done', () => {
+            // output will be the compiled data set.
+            resolve(output);
+        });
+
+        reader.on('error', err => reject(err));
+
+        reader.read(inputFile);
+
+    });
+}
+
 async function mint(contractData){
     console.log("")
     console.log("Minting")
@@ -35,12 +61,14 @@ async function mint(contractData){
         const provider = new ethers.providers.JsonRpcProvider(process.env.PROVIDER_URL)
         const signer = new ethers.Wallet(PRIVATEKEY, provider)
         const nftContract = new ethers.Contract(contractData.address, contractData.abi.abi, signer);
-        let mintedCount = 1;
-        while (mintedCount < 251){
-            const mintToken = await nftContract.mint(1, { value: ethers.utils.parseEther(".0001")});
-            console.log("Minted for address: ")
-            mintedCount ++;   
+        const lotteryAddresses = await readCSV("./static/addresses.csv")
+        
+        for(let i = 0; i<lotteryAddresses.length; i++){
+            // const mintToken = await nftContract.mintForAddress(1, { value: ethers.utils.parseEther(".0001")});
+            const mintToken = await nftContract.mintForAddress(1, lotteryAddresses[i]);
+            console.log(`Minted for address: ${lotteryAddresses[i]}`)
         }
+
         console.log("Successful Mint")
         
     } catch(e){
