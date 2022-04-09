@@ -8,7 +8,7 @@ const privateKey = process.env.ACCOUNT1_PRIVATEKEY
 task("lotterymint", "Mints for the n amount of lotterywinners")
   .setAction(async () => {
 
-    lottery.lotteryMint()
+    await lottery.lotteryMint()
 
   });
 
