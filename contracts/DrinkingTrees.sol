@@ -13,8 +13,9 @@ contract DrinkingTrees is ERC721A, Ownable, ReentrancyGuard {
 
   using Strings for uint256;
 
-  bytes32 public merkleRoot;
-  mapping(address => bool) public whitelistClaimed;
+    bytes32 public merkleRoot;
+    mapping(address => bool) public whitelistClaimed;
+    mapping(address => bool) public adminUser;
 
     string public baseURI;
     string public baseExtension = ".json";
@@ -48,6 +49,11 @@ contract DrinkingTrees is ERC721A, Ownable, ReentrancyGuard {
 
     modifier mintPriceCompliance(uint256 _mintAmount) {
         require(msg.value >= cost * _mintAmount, 'Insufficient funds!');
+        _;
+    }
+
+    modifier onlyAdmin(address _address){
+        require(adminUser[_address], "You must be an admin user to call this function");
         _;
     }
 

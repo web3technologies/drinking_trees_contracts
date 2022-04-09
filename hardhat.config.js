@@ -1,8 +1,19 @@
 require("@nomiclabs/hardhat-waffle");
-const fs = require("fs")
-require("dotenv").config()
+const fs = require("fs");
+require("dotenv").config();
+const lottery = require("./tasks/lotterymint.js");
 
 const privateKey = process.env.ACCOUNT1_PRIVATEKEY
+
+task("lotterymint", "Mints for the n amount of lotterywinners")
+  .setAction(async () => {
+
+    lottery.lotteryMint()
+
+  });
+
+
+
 
 module.exports = {
   networks: {
