@@ -11,7 +11,7 @@ const PRIVATEKEY2 = process.env.ACCOUNT2_PRIVATEKEY
 const PRIVATEKEY3 = process.env.ACCOUNT3_PRIVATEKEY
 
 task("lotterymint", "Mints for the n amount of lotterywinners")
-  .setAction(async () => {
+  .setAction(async (taskArgs) => {
     console.log("*** LOTTERY MINT Task ***")
     await lottery.lotteryMint()
     console.log("!!! LOTTERY MINTED !!!")
