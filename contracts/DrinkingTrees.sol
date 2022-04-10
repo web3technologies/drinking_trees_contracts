@@ -1,151 +1,207 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.4;
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+
+import 'erc721a/contracts/ERC721A.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
+import '@openzeppelin/contracts/utils/cryptography/MerkleProof.sol';
+import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 import "hardhat/console.sol";
 
 
-contract DrinkingTrees is ERC721Enumerable, Ownable {
-    using Strings for uint256;
+contract DrinkingTrees is ERC721A, Ownable, ReentrancyGuard {
+
+  using Strings for uint256;
+
+    bytes32 public merkleRoot;
+    mapping(address => bool) public whitelistClaimed;
+    mapping(address => bool) public adminUsers;
+    address[] public adminsArr;
+
+    address public payoutAddress;
 
     string public baseURI;
     string public baseExtension = ".json";
-    uint256 public cost = 0.02 ether;
-    uint256 public maxSupply = 1000;
-    bool public paused = false;
-    address marketAddress;
-    address payable bankAddress;
+    string public hiddenMetadataUri;
+  
+    uint256 public cost = .000999 ether; //base value
+    uint256 public maxSupply= 10000;
+    uint256 public maxMintAmountPerTx;
+    uint256 public adminCount;
 
-    struct Generation{
-        uint genertationId;
-        uint maxSupply;
-        string baseURI;
-        string baseExtension;
-        uint mintPrice;
-        uint payoutAddress;
-        uint marketAddress;
-        bool paused;
-        mapping(address => bool) whitelisted;
-        uint modifySigCount; // multi sig to update value
+    bool public paused = true;
+    bool public whitelistMintEnabled = false;
+    bool public revealed = false;
+
+
+
+    constructor(
+        string  memory _tokenName,
+        string  memory _tokenSymbol,
+        uint256  _maxMintAmountPerTx,
+        string  memory _hiddenMetadataUri,
+        uint256  _cost,
+        address _payoutAddress
+    ) ERC721A(_tokenName, _tokenSymbol) {
+        setMaxMintAmountPerTx(_maxMintAmountPerTx);
+        setHiddenMetadataUri(_hiddenMetadataUri);
+        setCost(_cost);
+        setPayoutAddress(_payoutAddress);
     }
 
-    mapping(uint => Generation) public generations;
-
-
-    mapping(address => bool) public owners; // create setter
-
-    mapping(address => bool) public whitelisted;
-
-    constructor (string memory _name, string memory _symbol, string memory _initBaseURI, address _marketAddress, address _bankAddress) ERC721(_name, _symbol) {
-        setBaseURI(_initBaseURI);
-        marketAddress = _marketAddress;
-        bankAddress = payable(_bankAddress);
+    modifier mintCompliance(uint256 _mintAmount) {
+        require(_mintAmount > 0 && _mintAmount <= maxMintAmountPerTx, 'Invalid mint amount!');
+        require(totalSupply() + _mintAmount <= maxSupply, 'Max supply exceeded!');
+        _;
     }
 
+    modifier mintPriceCompliance(uint256 _mintAmount) {
+        require(msg.value >= cost * _mintAmount, 'Insufficient funds!');
+        _;
+    }
 
-    // function createGeneration(
-    //   uint _generationId,
-    //   uint _maxSupply,
-    //   string _baseURI,
-    //   string _baseExtension,
-    //   uint _mintPrice,
-    //   uint payoutAddress,
-    //   uint marketAddress,
-    //   bool paused
-    //   ) public onlyOwner{
+    // allow an admin user to call this contract
+    modifier onlyAdmin(){
 
+        require(
+            adminUsers[_msgSender()] == true || owner() == _msgSender(), 
+            "You must be an admin user to call this function"
+        );
 
-    // }
+        _;
+    }
 
+    function whitelistMint(uint256 _mintAmount, bytes32[] calldata _merkleProof) public payable mintCompliance(_mintAmount) mintPriceCompliance(_mintAmount) {
+        // Verify whitelist requirements
+        require(whitelistMintEnabled, 'The whitelist sale is not enabled!');
+        require(!whitelistClaimed[_msgSender()], 'Address already claimed!');
+        bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
+        require(MerkleProof.verify(_merkleProof, merkleRoot, leaf), 'Invalid proof!');
 
-    // function signModifySig(){
+        whitelistClaimed[_msgSender()] = true;
+        _safeMint(_msgSender(), _mintAmount);
+    }
 
-    //   storage Generation 
+    function mint(uint256 _mintAmount) public payable mintCompliance(_mintAmount) mintPriceCompliance(_mintAmount) {
+        require(!paused, 'The contract is paused!');
+        _safeMint(_msgSender(), _mintAmount);
+    }
+    
+    function mintForAddress(uint256 _mintAmount, address _receiver) public mintCompliance(_mintAmount) onlyOwner {
+        _safeMint(_receiver, _mintAmount);
+    }
 
-    // }
+    function walletOfOwner(address _owner) public view returns (uint256[] memory) {
+        uint256 ownerTokenCount = balanceOf(_owner);
+        uint256[] memory ownedTokenIds = new uint256[](ownerTokenCount);
+        uint256 currentTokenId = _startTokenId();
+        uint256 ownedTokenIndex = 0;
+        address latestOwnerAddress;
 
+        while (ownedTokenIndex < ownerTokenCount && currentTokenId <= maxSupply) {
+        TokenOwnership memory ownership = _ownerships[currentTokenId];
 
-    // internal
-      function _baseURI() internal view virtual override returns (string memory) {
-        return baseURI;
-      }
-
-    // public
-    function mint() public payable {
-        uint256 supply = totalSupply();
-        require(!paused);
-        require(supply + 1 <= maxSupply);
-        if (msg.sender != owner()) {
-            if(whitelisted[msg.sender] != true) {
-              require(msg.value >= cost, "You must provide the correct price");
-            }
+        if (!ownership.burned && ownership.addr != address(0)) {
+            latestOwnerAddress = ownership.addr;
         }
 
-        _safeMint(msg.sender, supply + 1);
-        setApprovalForAll(marketAddress, true);
-        withdraw();
+        if (latestOwnerAddress == _owner) {
+            ownedTokenIds[ownedTokenIndex] = currentTokenId;
+
+            ownedTokenIndex++;
+        }
+
+        currentTokenId++;
+        }
+
+        return ownedTokenIds;
     }
 
-    function walletOfOwner(address _owner)
-      public
-      view
-      returns (uint256[] memory)
-    {
-      uint256 ownerTokenCount = balanceOf(_owner);
-      uint256[] memory tokenIds = new uint256[](ownerTokenCount);
-      for (uint256 i; i < ownerTokenCount; i++) {
-        tokenIds[i] = tokenOfOwnerByIndex(_owner, i);
-      }
-      return tokenIds;
+    function _startTokenId() internal view virtual override returns (uint256) {
+        return 1;
     }
 
-    function tokenURI(uint256 tokenId)
-      public
-      view
-      virtual
-      override
-      returns (string memory)
-    {
-      require(
-        _exists(tokenId),
-        "ERC721Metadata: URI query for nonexistent token"
-      );
+    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
+        require(_exists(_tokenId), 'ERC721Metadata: URI query for nonexistent token');
 
-      string memory currentBaseURI = _baseURI();
-      return bytes(currentBaseURI).length > 0
-          ? string(abi.encodePacked(currentBaseURI, tokenId.toString(), baseExtension))
-          : "";
+        if (revealed == false) {
+            return hiddenMetadataUri;
+        }
+
+        return bytes(baseURI).length > 0
+            ? string(abi.encodePacked(baseURI, _tokenId.toString(), baseExtension))
+            : '';
     }
 
-    //only owner
-    function setCost(uint256 _newCost) public onlyOwner {
-      cost = _newCost;
+    function setRevealed(bool _state) public onlyAdmin {
+        revealed = _state;
     }
 
-    function setBaseURI(string memory _newBaseURI) public onlyOwner {
+    function setCost(uint256 _cost) public onlyAdmin {
+        cost = _cost;
+    }
+
+    function setMaxMintAmountPerTx(uint256 _maxMintAmountPerTx) public onlyAdmin {
+        maxMintAmountPerTx = _maxMintAmountPerTx;
+    }
+
+    function setHiddenMetadataUri(string memory _hiddenMetadataUri) public onlyAdmin {
+        hiddenMetadataUri = _hiddenMetadataUri;
+    }
+
+    function setBaseURI(string memory _newBaseURI) public onlyAdmin {
       baseURI = _newBaseURI;
     }
 
-    function setBaseExtension(string memory _newBaseExtension) public onlyOwner {
+    function setBaseExtension(string memory _newBaseExtension) public onlyAdmin {
       baseExtension = _newBaseExtension;
     }
 
-    function pause(bool _state) public onlyOwner {
-      paused = _state;
-    }
-  
-    function whitelistUser(address _user) public onlyOwner {
-      whitelisted[_user] = true;
-    }
-  
-    function removeWhitelistUser(address _user) public onlyOwner {
-      whitelisted[_user] = false;
+    function setPaused(bool _state) public onlyAdmin {
+        paused = _state;
     }
 
-    // function updateBankAddress()
-
-    function withdraw() public payable {
-      address payable receiver = bankAddress;
-      require(receiver.send(address(this).balance));
+    function setMerkleRoot(bytes32 _merkleRoot) public onlyAdmin {
+        merkleRoot = _merkleRoot;
     }
-  }
+
+    function setWhitelistMintEnabled(bool _state) public onlyAdmin {
+        whitelistMintEnabled = _state;
+    }
+
+    function setAdmin(address _address) public onlyOwner {
+        adminUsers[_address] = true;
+        adminCount ++;
+        adminsArr.push(_address);
+    }
+
+    function removeAdmin(address _address) public onlyOwner {
+        adminUsers[_address] = false;
+    }
+
+    function getAdmins() public view returns(address[] memory){
+
+        address[] memory admins = new address[](adminCount);
+        
+        for (uint i = 0; i < adminCount; i++){
+            
+            address admin = adminsArr[i];
+            if(adminUsers[admin]){
+                admins[i] = admin;
+            }
+        }
+
+        return admins;
+
+    }
+
+    function setPayoutAddress(address _payoutAddress) public onlyAdmin{
+        payoutAddress = _payoutAddress;
+    }
+
+    function withdraw() public onlyAdmin nonReentrant {
+        (bool os, ) = payable(payoutAddress).call{value: address(this).balance}('');
+        require(os);
+    }
+
+}
