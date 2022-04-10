@@ -16,6 +16,8 @@ contract DrinkingTrees is ERC721A, Ownable, ReentrancyGuard {
     bytes32 public merkleRoot;
     mapping(address => bool) public whitelistClaimed;
     mapping(address => bool) public adminUsers;
+    address[] public adminsArr;
+
 
     string public baseURI;
     string public baseExtension = ".json";
@@ -24,10 +26,13 @@ contract DrinkingTrees is ERC721A, Ownable, ReentrancyGuard {
     uint256 public cost = .0001 ether;
     uint256 public maxSupply= 10000;
     uint256 public maxMintAmountPerTx;
+    uint256 public adminCount;
 
     bool public paused = true;
     bool public whitelistMintEnabled = false;
     bool public revealed = false;
+
+
 
     constructor(
         string memory _tokenName,
@@ -160,10 +165,29 @@ contract DrinkingTrees is ERC721A, Ownable, ReentrancyGuard {
 
     function setAdmin(address _address) public onlyOwner {
         adminUsers[_address] = true;
+        adminCount ++;
+        adminsArr.push(_address);
     }
 
     function removeAdmin(address _address) public onlyOwner {
         adminUsers[_address] = false;
+    }
+
+    function getAdmins() public view returns(address[] memory){
+
+        address[] memory admins = new address[](adminCount);
+        
+        for (uint i = 0; i < adminCount; i++){
+            
+            address admin = adminsArr[i];
+            if(adminUsers[admin]){
+                console.log(admin);
+                admins[i] = admin;
+            }
+        }
+
+        return admins;
+
     }
 
     function withdraw() public onlyOwner nonReentrant {

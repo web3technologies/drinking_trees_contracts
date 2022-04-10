@@ -10,7 +10,7 @@ async function mint(){
     try {
 
         const nftContract = await getContract.getContract()
-        const lotteryAddresses = await csv.readCSV("./static/addresses.csv")
+        const lotteryAddresses = await csv.readCSV("./static/lotteryaddresses.csv")
         
         for(let i = 0; i<lotteryAddresses.length; i++){
             // const mintToken = await nftContract.mintForAddress(1, { value: ethers.utils.parseEther(".0001")});

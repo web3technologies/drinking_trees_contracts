@@ -1,13 +1,21 @@
 require("@nomiclabs/hardhat-waffle");
 require("dotenv").config();
+
 const lottery = require("./tasks/lotterymint.js");
+const adminUser = require("./tasks/setAdmins")
 
 const PRIVATEKEY = process.env.ACCOUNT1_PRIVATEKEY
 
 task("lotterymint", "Mints for the n amount of lotterywinners")
   .setAction(async () => {
-    console.log("***LotteryMint Task***")
+    console.log("***LOTTERY MINT Task***")
     await lottery.lotteryMint()
+  });
+
+task("setAdmins", "Sets the initial admin users")
+  .setAction(async () => {
+    console.log("***SET ADMIN Task***")
+    await adminUser.setAdminUsers()
   });
 
 
