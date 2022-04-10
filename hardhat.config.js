@@ -8,6 +8,7 @@ const reveal = require("./tasks/setReveal");
 
 const PRIVATEKEY = process.env.ACCOUNT1_PRIVATEKEY
 const PRIVATEKEY2 = process.env.ACCOUNT2_PRIVATEKEY
+const PRIVATEKEY3 = process.env.ACCOUNT3_PRIVATEKEY
 
 task("lotterymint", "Mints for the n amount of lotterywinners")
   .setAction(async () => {
@@ -64,6 +65,10 @@ module.exports = {
         },
         {
           privateKey: PRIVATEKEY2,
+          balance: "10000000000000000000000"
+        },
+        {
+          privateKey: PRIVATEKEY3,
           balance: "10000000000000000000000"
         }
       ]

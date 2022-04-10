@@ -187,7 +187,6 @@ contract DrinkingTrees is ERC721A, Ownable, ReentrancyGuard {
             
             address admin = adminsArr[i];
             if(adminUsers[admin]){
-                console.log(admin);
                 admins[i] = admin;
             }
         }
