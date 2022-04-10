@@ -36,7 +36,8 @@ task("setReveal", "Sets the revealing of the nfts and the BaseUri")
     console.log("!!! CONTRACT REVEALED !!!")
   });
 
-
+  
+//todo ADD PARAM TO ONLY ALLOW FOR LOCAL HOST
 // ONLY FOR DEV ENVIRONMENT
 task("runAllCustomTasks", "Run all tasks at once")
   .setAction(async () => {

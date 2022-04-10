@@ -4,22 +4,7 @@ const process = require('process');
 const path = require('path');
 const fse = require('fs-extra');
 const AWS = require("aws-sdk")
-
-
-const deployConfig = {
-  tokenName: "Drinking Trees",
-  tokenSymbol: "DRT",
-  maxAmountPerTransaction: 1,
-  hiddenMetaDataURI: "ipfs://QmPvgdkcXHVEqgL9427bEKef18GW92XR8zpvPW1NKmnefu/hidden.json"
-}
-
-const deployArgs = [
-  deployConfig.tokenName,
-  deployConfig.tokenSymbol,
-  deployConfig.maxAmountPerTransaction,
-  deployConfig.hiddenMetaDataURI,
-  deployConfig.uriPrefix
-]
+const deployArgs = require("../config/config")
 
 async function main() {
     console.log("***Deploy SCRIPT***")
@@ -28,7 +13,7 @@ async function main() {
     const NFT = await hre.ethers.getContractFactory("DrinkingTrees")
 
 
-    const nft = await NFT.deploy(...deployArgs);
+    const nft = await NFT.deploy(...deployArgs.deployArgs);
     await nft.deployed();
     console.log("NFT deployed to: ", nft.address)
     const addressDataNFT = {
