@@ -1,4 +1,4 @@
-const csv = require("./utils/readCSV.js");
+const csv = require("./utils/readcsv.js");
 const getContract = require("./utils/getcontract");
 const log4js = require("log4js");
 
