@@ -1,6 +1,37 @@
 const csv = require("./utils/readCSV.js");
 const getContract = require("./utils/getcontract");
+const log4js = require("log4js");
 
+
+log4js.configure({
+  appenders: {
+    out: { type: 'stdout' }, 
+    success: { 
+        type: "file", 
+        filename: "./logs/setadmin/success.log" 
+      },
+    error: { 
+          type: "file", 
+          filename: "./logs/setadmin/error.log" 
+        } 
+    },
+  categories: {
+
+    default: { appenders: [ 'out' ], level: 'trace' },
+
+    success: { 
+        appenders: ["success"], 
+        level: "info" 
+    },
+    error: { 
+        appenders: ["error"], 
+        level: "error" 
+        } 
+    }
+});
+
+const successLogger = log4js.getLogger("success");
+const errorLogger = log4js.getLogger("error");
 
 async function setAdminUsers(){
 
@@ -12,18 +43,11 @@ async function setAdminUsers(){
         try {
             await nftContract.setAdmin(admins[i])
             console.log(`Admin set at: ${admins[i]}`)
+            successLogger.info(`Admin set at: ${admins[i]}`)
         } catch (e){
-            console.log(e)
+            errorLogger.error(e + " -- " + admins[i])
         }
         
-    }
-
-    try {
-        const adminUsersFromContract = await nftContract.getAdmins();
-        console.log(adminUsersFromContract)
-    } catch(e){
-        console.log(e)
-        console.log("err")
     }
     
 }
