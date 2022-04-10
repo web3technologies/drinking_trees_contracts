@@ -4,6 +4,7 @@ require("dotenv").config();
 const lottery = require("./tasks/lotterymint.js");
 const adminuser = require("./tasks/setAdmins");
 const unpause = require("./tasks/unpause");
+const reveal = require("./tasks/setReveal");
 
 const PRIVATEKEY = process.env.ACCOUNT1_PRIVATEKEY
 
@@ -27,6 +28,26 @@ task("setUnPause", "Sets the unpause of the minting")
     await unpause.unPause()
     console.log("!!! CONTRACT MINT UNPAUSED !!!")
   });
+
+task("setReveal", "Sets the revealing of the nfts and the BaseUri")
+  .setAction(async () => {
+    console.log("***SET REVEAL Task***")
+    await reveal.setReveal()
+    console.log("!!! CONTRACT REVEALED !!!")
+  });
+
+
+// ONLY FOR DEV ENVIRONMENT
+task("runAllCustomTasks", "Run all tasks at once")
+  .setAction(async () => {
+    console.log("***Running All Tasks***")
+    await lottery.lotteryMint()
+    await adminuser.setAdminUsers()
+    await unpause.unPause()
+    await reveal.setReveal()
+    console.log("!!! All Tasks Completed!!!")
+  });
+
 
 
 

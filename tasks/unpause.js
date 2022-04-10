@@ -6,7 +6,7 @@ async function unPause(){
 
     const nftContract = await getContract.getContract()
     try {
-        nftContract.setPaused(false);
+        await nftContract.setPaused(false);
     } catch (e){
         console.log(e)
     }

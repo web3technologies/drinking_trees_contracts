@@ -38,12 +38,10 @@ contract DrinkingTrees is ERC721A, Ownable, ReentrancyGuard {
         string memory _tokenName,
         string memory _tokenSymbol,
         uint256 _maxMintAmountPerTx,
-        string memory _hiddenMetadataUri,
-        string memory _baseURI
+        string memory _hiddenMetadataUri
     ) ERC721A(_tokenName, _tokenSymbol) {
         setMaxMintAmountPerTx(_maxMintAmountPerTx);
         setHiddenMetadataUri(_hiddenMetadataUri);
-        setBaseURI(_baseURI);
     }
 
     modifier mintCompliance(uint256 _mintAmount) {
