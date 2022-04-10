@@ -27,7 +27,19 @@ describe("NFT Test", ()=>{
     expect((await nft.maxMintAmountPerTx())).to.equal(5)
     expect((await nft.paused())).to.equal(true)
     expect((await nft.revealed())).to.equal(false)
+    expect((await nft.payoutAddress())).to.equal(process.env.PAYOUTADDRESS)
+  })
 
+  it("Should correctly set payout address", async ()=> {
+    const newPayout = await owner.getAddress()
+    await nft.setPayoutAddress(newPayout)
+    expect((await nft.payoutAddress())).to.equal(newPayout)
+  })
+
+  it("MintForAddress test for owner to be able to mint before un paused", async ()=> {
+    const addy = await testAccount.getAddress()
+    await nft.mintForAddress(1, addy)
+    expect((await nft.totalSupply()).toString()).to.equal("1")
   })
 
   it("Contract should be unpaused", async ()=> {
@@ -36,10 +48,10 @@ describe("NFT Test", ()=>{
   })
 
   it("NFT supply should increase after mint", async ()=> {
-    await nft.mint(1, {value: ethers.utils.parseEther(".02")})
-    await nft.connect(owner).mint(1, {value: ethers.utils.parseEther(".02")})
-    await nft.connect(owner).mint(1, {value: ethers.utils.parseEther(".02")})
-    expect((await nft.totalSupply()).toString()).to.equal("3")
+    await nft.mint(1, {value: ethers.utils.parseEther(".0001")})
+    await nft.connect(testAccount).mint(1, {value: ethers.utils.parseEther(".0001")})
+    await nft.connect(testAccount).mint(1, {value: ethers.utils.parseEther(".0001")})
+    expect((await nft.totalSupply()).toString()).to.equal("4")
   })
   
 });

@@ -7,6 +7,7 @@ const unpause = require("./tasks/unpause");
 const reveal = require("./tasks/setReveal");
 
 const PRIVATEKEY = process.env.ACCOUNT1_PRIVATEKEY
+const PRIVATEKEY2 = process.env.ACCOUNT2_PRIVATEKEY
 
 task("lotterymint", "Mints for the n amount of lotterywinners")
   .setAction(async () => {
@@ -56,10 +57,16 @@ module.exports = {
   networks: {
     hardhat: {
       chainId: 1337,
-      accounts: [{
-        privateKey: PRIVATEKEY,
-        balance: "10000000000000000000000",
-      }]
+      accounts: [
+        {
+          privateKey: PRIVATEKEY,
+          balance: "10000000000000000000000"
+        },
+        {
+          privateKey: PRIVATEKEY2,
+          balance: "10000000000000000000000"
+        }
+      ]
     },
     mumbai: {
       url: `https://rpc-mumbai.maticvigil.com`,

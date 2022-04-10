@@ -18,12 +18,13 @@ contract DrinkingTrees is ERC721A, Ownable, ReentrancyGuard {
     mapping(address => bool) public adminUsers;
     address[] public adminsArr;
 
+    address public payoutAddress;
 
     string public baseURI;
     string public baseExtension = ".json";
     string public hiddenMetadataUri;
   
-    uint256 public cost = .0001 ether;
+    uint256 public cost = .000999 ether; //base value
     uint256 public maxSupply= 10000;
     uint256 public maxMintAmountPerTx;
     uint256 public adminCount;
@@ -38,10 +39,14 @@ contract DrinkingTrees is ERC721A, Ownable, ReentrancyGuard {
         string  memory _tokenName,
         string  memory _tokenSymbol,
         uint256  _maxMintAmountPerTx,
-        string  memory _hiddenMetadataUri
+        string  memory _hiddenMetadataUri,
+        uint256  _cost,
+        address _payoutAddress
     ) ERC721A(_tokenName, _tokenSymbol) {
         setMaxMintAmountPerTx(_maxMintAmountPerTx);
         setHiddenMetadataUri(_hiddenMetadataUri);
+        setCost(_cost);
+        setPayoutAddress(_payoutAddress);
     }
 
     modifier mintCompliance(uint256 _mintAmount) {
@@ -55,8 +60,14 @@ contract DrinkingTrees is ERC721A, Ownable, ReentrancyGuard {
         _;
     }
 
-    modifier onlyAdmin(address _address){
-        require(adminUsers[_address], "You must be an admin user to call this function");
+    // allow an admin user to call this contract
+    modifier onlyAdmin(){
+
+        require(
+            adminUsers[_msgSender()] == true || owner() == _msgSender(), 
+            "You must be an admin user to call this function"
+        );
+
         _;
     }
 
@@ -122,39 +133,39 @@ contract DrinkingTrees is ERC721A, Ownable, ReentrancyGuard {
             : '';
     }
 
-    function setRevealed(bool _state) public onlyOwner {
+    function setRevealed(bool _state) public onlyAdmin {
         revealed = _state;
     }
 
-    function setCost(uint256 _cost) public onlyOwner {
+    function setCost(uint256 _cost) public onlyAdmin {
         cost = _cost;
     }
 
-    function setMaxMintAmountPerTx(uint256 _maxMintAmountPerTx) public onlyOwner {
+    function setMaxMintAmountPerTx(uint256 _maxMintAmountPerTx) public onlyAdmin {
         maxMintAmountPerTx = _maxMintAmountPerTx;
     }
 
-    function setHiddenMetadataUri(string memory _hiddenMetadataUri) public onlyOwner {
+    function setHiddenMetadataUri(string memory _hiddenMetadataUri) public onlyAdmin {
         hiddenMetadataUri = _hiddenMetadataUri;
     }
 
-    function setBaseURI(string memory _newBaseURI) public onlyOwner {
+    function setBaseURI(string memory _newBaseURI) public onlyAdmin {
       baseURI = _newBaseURI;
     }
 
-    function setBaseExtension(string memory _newBaseExtension) public onlyOwner {
+    function setBaseExtension(string memory _newBaseExtension) public onlyAdmin {
       baseExtension = _newBaseExtension;
     }
 
-    function setPaused(bool _state) public onlyOwner {
+    function setPaused(bool _state) public onlyAdmin {
         paused = _state;
     }
 
-    function setMerkleRoot(bytes32 _merkleRoot) public onlyOwner {
+    function setMerkleRoot(bytes32 _merkleRoot) public onlyAdmin {
         merkleRoot = _merkleRoot;
     }
 
-    function setWhitelistMintEnabled(bool _state) public onlyOwner {
+    function setWhitelistMintEnabled(bool _state) public onlyAdmin {
         whitelistMintEnabled = _state;
     }
 
@@ -185,8 +196,12 @@ contract DrinkingTrees is ERC721A, Ownable, ReentrancyGuard {
 
     }
 
-    function withdraw() public onlyOwner nonReentrant {
-        (bool os, ) = payable(owner()).call{value: address(this).balance}('');
+    function setPayoutAddress(address _payoutAddress) public onlyAdmin{
+        payoutAddress = _payoutAddress;
+    }
+
+    function withdraw() public onlyAdmin nonReentrant {
+        (bool os, ) = payable(payoutAddress).call{value: address(this).balance}('');
         require(os);
     }
 
