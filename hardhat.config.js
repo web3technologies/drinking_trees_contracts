@@ -2,21 +2,32 @@ require("@nomiclabs/hardhat-waffle");
 require("dotenv").config();
 
 const lottery = require("./tasks/lotterymint.js");
-const adminUser = require("./tasks/setAdmins")
+const adminuser = require("./tasks/setAdmins");
+const unpause = require("./tasks/unpause");
 
 const PRIVATEKEY = process.env.ACCOUNT1_PRIVATEKEY
 
 task("lotterymint", "Mints for the n amount of lotterywinners")
   .setAction(async () => {
-    console.log("***LOTTERY MINT Task***")
+    console.log("*** LOTTERY MINT Task ***")
     await lottery.lotteryMint()
+    console.log("!!! LOTTERY MINTED !!!")
   });
 
 task("setAdmins", "Sets the initial admin users")
   .setAction(async () => {
-    console.log("***SET ADMIN Task***")
-    await adminUser.setAdminUsers()
+    console.log("*** SET ADMIN Task ***")
+    await adminuser.setAdminUsers()
+    console.log("!!! ADMINS SET !!!")
   });
+
+task("setUnPause", "Sets the unpause of the minting")
+  .setAction(async () => {
+    console.log("***SET UNPAUSE Task***")
+    await unpause.unPause()
+    console.log("!!! CONTRACT MINT UNPAUSED !!!")
+  });
+
 
 
 module.exports = {
