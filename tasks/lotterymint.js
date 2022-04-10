@@ -38,25 +38,24 @@ const errorLogger = log4js.getLogger("error");
 // calls the contracts mintForAddress method itteratively
 async function mint(){
     console.log("")
-    console.log("Minting")
-    try {
-        const nftContract = await getContract.getContract()
-        const lotteryAddresses = await csv.readCSV("./static/lotteryaddresses.csv")
-        for(let i = 0; i<lotteryAddresses.length; i++){
+    successLogger.info("Minting")
+    logger.info("Minting")
+    const nftContract = await getContract.getContract()
+    const lotteryAddresses = await csv.readCSV("./static/lotteryaddresses.csv")
+
+    for(let i = 0; i<lotteryAddresses.length; i++){
+        try {
             const mintToken = await nftContract.mintForAddress(1, lotteryAddresses[i]);
             logger.info(`Minted for address: ${lotteryAddresses[i]} -- Number ${i}`)
             successLogger.info(`Minted for address: ${lotteryAddresses[i]} -- Number ${i}`)
+        } catch (e){
+            errorLogger.error(e + "---" + lotteryAddresses[i])
         }
-        successLogger.info("Successful Mint")
-    } catch(e){
-        console.log(e)
-        console.log("error")
-        errorLogger.trace("Entering cheese testing");
-        errorLogger.debug("Got cheese.");
-        errorLogger.warn("Cheese is quite smelly.");
-        errorLogger.error("Cheese is too ripe!");
-        errorLogger.fatal("Cheese was breeding ground for listeria.");
+
     }
+
+    
+    successLogger.info("Successful Mint")
 
 }
 
