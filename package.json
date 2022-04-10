@@ -15,6 +15,7 @@
     "ethers": "^5.5.4",
     "fse": "^4.0.1",
     "hardhat": "^2.8.3",
+    "log4js": "^6.4.4",
     "promised-csv": "^1.0.1",
     "walk-sync": "^3.0.0"
   },
