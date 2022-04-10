@@ -8,11 +8,11 @@ log4js.configure({
     out: { type: 'stdout' }, 
     success: { 
         type: "file", 
-        filename: "./logs/setadmin/success.log" 
+        filename: `${process.cwd()}/logs/success.log` 
       },
     error: { 
           type: "file", 
-          filename: "./logs/setadmin/error.log" 
+          filename: `${process.cwd()}/logs/error.log` 
         } 
     },
   categories: {

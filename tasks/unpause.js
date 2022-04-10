@@ -6,11 +6,11 @@ log4js.configure({
     out: { type: 'stdout' }, 
     success: { 
         type: "file", 
-        filename: "./logs/setunpause/success.log" 
+        filename: `${process.cwd()}/logs/success.log` 
       },
     error: { 
           type: "file", 
-          filename: "./logs/setunpause/error.log" 
+          filename: `${process.cwd()}/logs/error.log` 
         } 
     },
   categories: {
@@ -27,7 +27,6 @@ log4js.configure({
         } 
     }
 });
-
 
 const successLogger = log4js.getLogger("success");
 const errorLogger = log4js.getLogger("error");
