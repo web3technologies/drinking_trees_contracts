@@ -65,6 +65,11 @@ module.exports = {
       chainId: 80001,
       accounts: [PRIVATEKEY]
     },
+    ropsten: {
+      url: "https://ropsten.infura.io/v3/6371b6cc89d940feb1557175b7978ced",
+      chainid: 3,
+      accounts: [PRIVATEKEY]
+    }
   },
   solidity: "0.8.4",
 };
