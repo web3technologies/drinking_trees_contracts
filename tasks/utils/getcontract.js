@@ -11,6 +11,7 @@ async function getContract(){
     const provider = new ethers.providers.JsonRpcProvider(process.env.PROVIDER_URL)
     const signer = new ethers.Wallet(PRIVATEKEY, provider)
 
+    console.log(signer)
     const nftContract = new ethers.Contract(contractData.address, contractData.abi.abi, signer);
     return nftContract
 }

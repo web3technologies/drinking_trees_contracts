@@ -68,7 +68,6 @@ async function verify(){
         errorLogger.error(e)
     }
 
-
 }
 
 
