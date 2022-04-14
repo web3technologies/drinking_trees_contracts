@@ -50,7 +50,6 @@ async function mint(){
             successLogger.info(`Minted for address: ${lotteryAddresses[i]} -- Number ${i}`)
         } catch (e){
             errorLogger.error(e + "---" + lotteryAddresses[i])
-            console.log(e)
         }
 
     }
