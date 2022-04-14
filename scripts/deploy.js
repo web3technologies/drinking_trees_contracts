@@ -51,6 +51,7 @@ async function main() {
     const nft = await NFT.deploy(...deployArgs.deployArgs);
     await nft.deployed();
     successLogger.info("NFT deployed to: ", nft.address)
+    
     const addressDataNFT = {
         contractName: "DrinkingTrees",
         address: nft.address
@@ -58,6 +59,10 @@ async function main() {
     const jsonContentNFT = JSON.stringify(addressDataNFT)
     
     const baseDirPath = "/artifacts/contracts/address/"
+
+
+
+
 
     if (!fs.existsSync(process.cwd() + baseDirPath)){
       fs.mkdirSync(process.cwd() + baseDirPath);

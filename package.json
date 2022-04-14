@@ -20,6 +20,7 @@
     "walk-sync": "^3.0.0"
   },
   "devDependencies": {
+    "@nomiclabs/hardhat-etherscan": "^3.0.3",
     "autoprefixer": "^10.4.2",
     "eslint": "8.8.0"
   }

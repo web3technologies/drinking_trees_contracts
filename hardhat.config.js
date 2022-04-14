@@ -1,10 +1,13 @@
 require("@nomiclabs/hardhat-waffle");
 require("dotenv").config();
+require("@nomiclabs/hardhat-etherscan");
 
 const lottery = require("./tasks/lotterymint.js");
 const adminuser = require("./tasks/setAdmins");
 const unpause = require("./tasks/unpause");
 const reveal = require("./tasks/setReveal");
+const verify = require("./tasks/verify");
+
 
 const PRIVATEKEY = process.env.ACCOUNT1_PRIVATEKEY
 const PRIVATEKEY2 = process.env.ACCOUNT2_PRIVATEKEY
@@ -31,6 +34,13 @@ task("setUnPause", "Sets the unpause of the minting")
     console.log("!!! CONTRACT MINT UNPAUSED !!!")
   });
 
+  task("verifyContract", "Sets the unpause of the minting")
+  .setAction(async () => {
+    console.log("***Verify Task***")
+    await verify.verify()
+    console.log("!!! CONTRACT Verified !!!")
+  });
+
 task("setReveal", "Sets the revealing of the nfts and the BaseUri")
   .setAction(async () => {
     console.log("***SET REVEAL Task***")
@@ -39,7 +49,8 @@ task("setReveal", "Sets the revealing of the nfts and the BaseUri")
   });
 
 
-
+POLYGON_MUMBAI_RPC_PROVIDER = 'https://rpc-mumbai.maticvigil.com'
+POLYGONSCAN_API_KEY = 'V5JXY7Z33HVI1JQSNCDA6C59FDCYE8ZWU6'
 
 module.exports = {
   networks: {
@@ -72,4 +83,9 @@ module.exports = {
     }
   },
   solidity: "0.8.4",
+  etherscan: {
+    apiKey: {
+      ropsten: "RZXB4EUNI9U269B1P7HIU5XK89FWG67TV8"
+    }
+  }
 };
